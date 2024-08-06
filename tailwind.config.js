@@ -13,6 +13,9 @@ module.exports = {
       center: true,
     },
     extend: {
+      fontFamily: {
+        Quicksand: ["Quicksand", "sans-serif"],
+      },
       colors: {
         "primary-col1": "#161D2F",
         "primary-col2": "#10141F",
