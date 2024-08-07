@@ -1,11 +1,16 @@
 import PropTypes from "prop-types";
+import noImg from "../../public/no-img.png";
 
-const TrendingMovieCard = ({ img, year, icon, type, adult, title }) => {
+const RecommendedMovies = ({ img, year, icon, type, adult, title }) => {
   return (
     <div className="relative">
-      <img src={img} alt={title} className="rounded-lg" />
+      <img
+        src={img ? `https://image.tmdb.org/t/p/w500${img}` : noImg}
+        alt={title}
+        className="rounded-lg"
+      />
 
-      <div className="absolute top-1 right-1 bg-black p-2 bg-opacity-35 rounded-full z-10">
+      <div className="absolute top-1 right-1 bg-black p-1.5 bg-opacity-35 rounded-full">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -27,28 +32,21 @@ const TrendingMovieCard = ({ img, year, icon, type, adult, title }) => {
         </svg>
       </div>
 
-      {/* Dark fade effect at the bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-full rounded-lg overflow-hidden">
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black to-transparent"></div>
+      <div className="mt-2 text-slate-200 flex items-center text-sm capitalize">
+        {year}&nbsp;
+        <span className="w-0.5 h-0.5 rounded-full bg-slate-200"></span>
+        &nbsp;
+        {icon}
+        &nbsp;{type}&nbsp;
+        <span className="w-0.5 h-0.5 rounded-full bg-slate-200"></span>
+        &nbsp;{adult}
       </div>
-
-      <div className="absolute bottom-3.5 left-2.5">
-        <div className="text-slate-200 mb-1 flex items-center text-sm capitalize">
-          {year}&nbsp;
-          <span className="w-0.5 h-0.5 rounded-full bg-slate-200"></span>
-          &nbsp;
-          {icon}
-          &nbsp;{type}&nbsp;
-          <span className="w-0.5 h-0.5 rounded-full bg-slate-200"></span>
-          &nbsp;{adult}
-        </div>
-        <h2 className="text-white font-bold">{title}</h2>
-      </div>
+      <h2 className="text-white font-bold">{title}</h2>
     </div>
   );
 };
 
-TrendingMovieCard.propTypes = {
+RecommendedMovies.propTypes = {
   img: PropTypes.string,
   year: PropTypes.number,
   icon: PropTypes.object,
@@ -57,4 +55,4 @@ TrendingMovieCard.propTypes = {
   title: PropTypes.string,
 };
 
-export default TrendingMovieCard;
+export default RecommendedMovies;
