@@ -19,21 +19,13 @@ const Dashboard = () => {
     Autoplay({ delay: 5000, stopOnInteraction: true, loop: true })
   );
 
+  const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+
   useEffect(() => {
     const fetchMovies = async () => {
-      const options = {
-        method: "GET",
-        headers: {
-          accept: "application/json",
-          Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5Njk0MWU0YzNmMjE0YWU3NGM0MWZjMDQ0NjVkNTM5MiIsIm5iZiI6MTcyMjk3MDQ0MC43MTI2NTUsInN1YiI6IjY2YjI2ZjZlYzMyZjkzZTA3N2EwODA4ZCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.TiQJzEQMgwKaTOaMMyr5So-XCJHuG4ZRBfEaPxlkwGY",
-        },
-      };
-
       try {
         const response = await fetch(
-          "https://api.themoviedb.org/3/trending/all/day?language=en-US",
-          options
+          `https://api.themoviedb.org/3/trending/all/day?language=en-US&api_key=${API_KEY}`
         );
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
