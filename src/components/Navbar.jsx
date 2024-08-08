@@ -4,7 +4,7 @@ const Navbar = () => {
   return (
     <nav className="bg-primary-col1 p-5 h-[95vh] grid justify-between rounded-xl">
       <div className="grid justify-center mb-32">
-        <Link to={""}>
+        <Link to={"dashboard"}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="30"
@@ -18,7 +18,7 @@ const Navbar = () => {
 
         <ul className="grid space-y-5">
           <li>
-            <NavLink to="" className="active-nav" aria-current="page">
+            <NavLink to="dashboard" className="active-nav" aria-current="page">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="26"

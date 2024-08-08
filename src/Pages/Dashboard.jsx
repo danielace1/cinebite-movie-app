@@ -19,18 +19,26 @@ const Dashboard = () => {
   const [recommended, setRecommended] = useState([]);
   const [movieId, setMovieId] = useState([]);
   const [seriesId, setSeriesId] = useState([]);
+  const [query, setQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
 
   const plugin = useRef(
-    Autoplay({ delay: 5000, stopOnInteraction: true, loop: true })
+    Autoplay({
+      delay: 5000,
+      stopOnInteraction: true,
+      loop: true,
+      stopOnLastSnap: false,
+    })
   );
 
   const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
+  // Trending movies and series
   useEffect(() => {
     const fetchTrending = async () => {
       try {
         const response = await fetch(
-          `https://api.themoviedb.org/3/trending/all/day?language=en-US&api_key=${API_KEY}`
+          `https://api.themoviedb.org/3/trending/all/day?language=ta&region=IN&api_key=${API_KEY}`
         );
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -55,20 +63,21 @@ const Dashboard = () => {
     fetchTrending();
   }, [API_KEY]);
 
+  // Recommendations
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
         // Fetch movie recommendations
         const movieRequests = movieId.map((id) =>
           fetch(
-            `https://api.themoviedb.org/3/movie/${id}/recommendations?language=en-US&api_key=${API_KEY}`
+            `https://api.themoviedb.org/3/movie/${id}/recommendations?language=ta&region=IN&api_key=${API_KEY}`
           ).then((response) => response.json())
         );
 
         // Fetch series recommendations
         const seriesRequests = seriesId.map((id) =>
           fetch(
-            `https://api.themoviedb.org/3/tv/${id}/recommendations?language=en-US&api_key=${API_KEY}`
+            `https://api.themoviedb.org/3/tv/${id}/recommendations?language=ta&region=IN&api_key=${API_KEY}`
           ).then((response) => response.json())
         );
 
@@ -94,6 +103,26 @@ const Dashboard = () => {
     }
   }, [movieId, seriesId, API_KEY]);
 
+  // Search results
+  useEffect(() => {
+    async function fetchSearchResults() {
+      try {
+        const response = await fetch(
+          `https://api.themoviedb.org/3/search/multi?query=${query}&language=ta&region=IN&api_key=${API_KEY}`
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        setSearchResults(data.results); // Update state with search results
+      } catch (error) {
+        console.error("Error fetching search results:", error);
+      }
+    }
+
+    fetchSearchResults();
+  });
+
   return (
     <div className="mt-2.5 mx-5 w-full">
       {/* Search bar */}
@@ -101,6 +130,8 @@ const Dashboard = () => {
         <input
           type="text"
           placeholder="Search for movies or TV series"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
           className="outline-none w-full px-12 py-2.5 bg-transparent text-white rounded-lg focus:border focus:border-slate-700"
         />
         <div className="absolute top-2.5 left-2">
@@ -123,67 +154,110 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Trending Carousel */}
-      <div className="mt-5">
-        <h1 className="text-white text-xl font-semibold">Trending</h1>
+      {searchResults.length === 0 ? (
+        query.length > 0 ? (
+          <div className="mt-5">
+            <h1 className="text-white text-xl font-semibold">
+              No Results found
+            </h1>
+          </div>
+        ) : (
+          <>
+            {/* Trending Carousel */}
+            <div className="mt-5">
+              <h1 className="text-white text-xl font-semibold">Trending</h1>
 
-        <Carousel
-          className="mt-5"
-          plugins={[plugin.current]}
-          onMouseEnter={plugin.current.stop}
-          onMouseLeave={plugin.current.reset}
-        >
-          <CarouselContent className="-ml-8">
-            {trending.map((item) => (
-              <CarouselItem
-                key={item.id}
-                className="md:basis-1/2 lg:basis-1/3 pl-8"
+              <Carousel
+                className="mt-5"
+                plugins={[plugin.current]}
+                onMouseEnter={plugin.current.stop}
+                onMouseLeave={plugin.current.reset}
               >
-                <TrendingMovieCard
-                  img={`https://image.tmdb.org/t/p/w500${item.backdrop_path}`}
-                  year={
-                    item.release_date
-                      ? new Date(item.release_date).getFullYear()
-                      : new Date(item.first_air_date).getFullYear()
-                  }
-                  icon={
-                    item.media_type === "movie" ? <MovieIcon /> : <TVIcon />
-                  }
-                  type={item.media_type === "movie" ? "Movie" : "TV Series"}
-                  adult={item.adult ? "18+" : "13+"}
-                  title={item.title || item.name || item.original_title}
-                />
-              </CarouselItem>
+                <CarouselContent className="-ml-8">
+                  {trending.map((item) => (
+                    <CarouselItem
+                      key={item.id}
+                      className="md:basis-1/2 lg:basis-1/3 pl-8"
+                    >
+                      <TrendingMovieCard
+                        img={`https://image.tmdb.org/t/p/w500${item.backdrop_path}`}
+                        year={
+                          item.release_date
+                            ? new Date(item.release_date).getFullYear()
+                            : new Date(item.first_air_date).getFullYear()
+                        }
+                        icon={
+                          item.media_type === "movie" ? (
+                            <MovieIcon />
+                          ) : (
+                            <TVIcon />
+                          )
+                        }
+                        type={
+                          item.media_type === "movie" ? "Movie" : "TV Series"
+                        }
+                        adult={item.adult == false ? "13+" : "18+"}
+                        title={item.title || item.name || item.original_title}
+                      />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="left-[-16px] bg-primary-col1 border-none text-white" />
+                <CarouselNext className="right-[-16px] bg-primary-col1 border-none text-white" />
+              </Carousel>
+            </div>
+
+            <div className="mt-10">
+              <h1 className="text-white text-xl font-semibold">
+                Recommended for you
+              </h1>
+
+              <div className="mt-5 grid grid-cols-4 gap-8">
+                {recommended.map((item, id) => (
+                  <RecommendedMovies
+                    key={id}
+                    img={item.backdrop_path}
+                    year={
+                      item.release_date
+                        ? new Date(item.release_date).getFullYear()
+                        : new Date(item.first_air_date).getFullYear()
+                    }
+                    icon={
+                      item.media_type === "movie" ? <MovieIcon /> : <TVIcon />
+                    }
+                    type={item.media_type === "movie" ? "Movie" : "TV Series"}
+                    adult={item.adult == false ? "13+" : "18+"}
+                    title={item.title || item.name || item.original_title}
+                  />
+                ))}
+              </div>
+            </div>
+          </>
+        )
+      ) : (
+        // Search results
+        <div className="mt-5">
+          <h1 className="text-white text-xl font-semibold">Search Results</h1>
+
+          <div className="mt-5 grid grid-cols-4 gap-8">
+            {searchResults.map((item, id) => (
+              <RecommendedMovies
+                key={id}
+                img={item.backdrop_path}
+                year={
+                  item.release_date
+                    ? new Date(item.release_date).getFullYear()
+                    : new Date(item.first_air_date).getFullYear()
+                }
+                icon={item.media_type === "movie" ? <MovieIcon /> : <TVIcon />}
+                type={item.media_type === "movie" ? "Movie" : "TV Series"}
+                adult={item.adult ? "18+" : "13+"}
+                title={item.title || item.name || item.original_title}
+              />
             ))}
-          </CarouselContent>
-          <CarouselPrevious className="left-[-16px] bg-primary-col1 border-none text-white" />
-          <CarouselNext className="right-[-16px] bg-primary-col1 border-none text-white" />
-        </Carousel>
-      </div>
-
-      <div className="mt-10">
-        <h1 className="text-white text-xl font-semibold">
-          Recommended for you
-        </h1>
-
-        <div className="mt-5 grid grid-cols-4 gap-8">
-          {recommended.map((item, id) => (
-            <RecommendedMovies
-              key={id}
-              img={item.backdrop_path}
-              year={
-                item.release_date
-                  ? new Date(item.release_date).getFullYear()
-                  : new Date(item.first_air_date).getFullYear()
-              }
-              icon={item.media_type === "movie" ? <MovieIcon /> : <TVIcon />}
-              type={item.media_type === "movie" ? "Movie" : "TV Series"}
-              adult={item.adult ? "18+" : "13+"}
-              title={item.title || item.name || item.original_title}
-            />
-          ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
