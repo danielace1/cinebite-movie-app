@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 const TrendingMovieCard = ({ img, year, icon, type, adult, title }) => {
   return (
     <div className="relative">
-      <img src={img} alt={title} className="rounded-lg" />
+      <img src={img} alt={title} className="rounded-lg object-cover" />
 
       <div className="absolute top-1 right-1 bg-black p-2 bg-opacity-35 rounded-full z-10">
         <svg

@@ -7,7 +7,7 @@ const RecommendedMovies = ({ img, year, icon, type, adult, title }) => {
       <img
         src={img ? `https://image.tmdb.org/t/p/w500${img}` : noImg}
         alt={title}
-        className="rounded-lg"
+        className="rounded-lg object-cover"
       />
 
       <div className="absolute top-1 right-1 bg-black p-1.5 bg-opacity-35 rounded-full">

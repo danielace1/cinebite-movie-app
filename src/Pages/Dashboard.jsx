@@ -126,20 +126,46 @@ const Dashboard = () => {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        setSearchResults(data.results); // Update state with search results
+
+        // Process each result
+        const processedResults = data.results.flatMap((item) => {
+          const directResult =
+            item.media_type === "movie" || item.media_type === "tv"
+              ? item
+              : null;
+
+          const knownForResults =
+            item.original_item && item.original_item.known_for
+              ? item.original_item.known_for.map((knownItem) => ({
+                  ...knownItem,
+                  original_item: item.original_item,
+                }))
+              : [];
+
+          return [directResult, ...knownForResults].filter(Boolean);
+        });
+
+        const filteredResults = processedResults.filter(
+          (item) => item.media_type === "movie" || item.media_type === "tv"
+        );
+
+        setSearchResults(filteredResults);
+        // console.log("Filtered Search Results:", filteredResults);
       } catch (error) {
         console.error("Error fetching search results:", error);
       }
     }
 
-    fetchSearchResults();
-  });
+    if (query) {
+      fetchSearchResults();
+    }
+  }, [API_KEY, query]);
 
   // Fetch certifications for movies and TV shows
   useEffect(() => {
     const fetchCertifications = async () => {
       try {
-        const combinedItems = [...trending, ...recommended];
+        const combinedItems = [...trending, ...recommended, ...searchResults];
 
         if (combinedItems.length === 0) return;
 
@@ -206,7 +232,7 @@ const Dashboard = () => {
     };
 
     fetchCertifications();
-  }, [trending, recommended, API_KEY]);
+  }, [trending, recommended, searchResults, API_KEY]);
 
   // Function to get certification based on item type and id
   const getCertification = (item) => {
@@ -278,7 +304,7 @@ const Dashboard = () => {
                       <TrendingMovieCard
                         img={`https://image.tmdb.org/t/p/w500${item.backdrop_path}`}
                         year={
-                          item.release_date
+                          item.release_date || item.first_air_date
                             ? new Date(item.release_date).getFullYear() ||
                               new Date(item.first_air_date).getFullYear()
                             : "N/A"
@@ -315,7 +341,7 @@ const Dashboard = () => {
                     key={id}
                     img={item.backdrop_path}
                     year={
-                      item.release_date
+                      item.release_date || item.first_air_date
                         ? new Date(item.release_date).getFullYear() ||
                           new Date(item.first_air_date).getFullYear()
                         : "N/A"
@@ -343,7 +369,7 @@ const Dashboard = () => {
                 key={id}
                 img={item.backdrop_path}
                 year={
-                  item.release_date
+                  item.release_date || item.first_air_date
                     ? new Date(item.release_date).getFullYear() ||
                       new Date(item.first_air_date).getFullYear()
                     : "N/A"
