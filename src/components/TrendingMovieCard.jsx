@@ -42,7 +42,7 @@ const TrendingMovieCard = ({ img, year, icon, type, adult, title }) => {
           <span className="w-0.5 h-0.5 rounded-full bg-slate-200"></span>
           &nbsp;{adult}
         </div>
-        <h2 className="text-white font-bold">{title}</h2>
+        <h2 className="text-white text-lg font-bold">{title}</h2>
       </div>
     </div>
   );

@@ -18,10 +18,7 @@ const MoviesList = () => {
   const [Upcoming, setUpcoming] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [query, setQuery] = useState("");
-  const [certifications, setCertifications] = useState({
-    movies: {},
-    tvShows: {},
-  });
+  const [certifications, setCertifications] = useState({});
 
   const plugin = useRef(
     Autoplay({
@@ -47,7 +44,6 @@ const MoviesList = () => {
         const data = await response.json();
         setNowPlaying(data.results);
         console.log(data);
-        console.log(data.results);
       } catch (error) {
         console.error("Error fetching now playing movies:", error);
       }
@@ -66,8 +62,8 @@ const MoviesList = () => {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        console.log(data);
         setPopular(data.results);
+        // console.log(data);
       } catch (error) {
         console.error("Error fetching popular movies:", error);
       }
@@ -92,7 +88,7 @@ const MoviesList = () => {
       }
     }
     fetchTopRatedMovies();
-  });
+  }, [API_KEY]);
 
   // Upcoming
   useEffect(() => {
@@ -106,7 +102,7 @@ const MoviesList = () => {
         }
         const data = await response.json();
         setUpcoming(data.results);
-        console.log(data);
+        console.log("Upcoming:", data);
       } catch (error) {
         console.error("Error fetching upcoming movies:", error);
       }
@@ -126,30 +122,8 @@ const MoviesList = () => {
         }
         const data = await response.json();
 
-        // Process each result
-        const processedResults = data.results.flatMap((item) => {
-          const directResult =
-            item.media_type === "movie" || item.media_type === "tv"
-              ? item
-              : null;
-
-          const knownForResults =
-            item.original_item && item.original_item.known_for
-              ? item.original_item.known_for.map((knownItem) => ({
-                  ...knownItem,
-                  original_item: item.original_item,
-                }))
-              : [];
-
-          return [directResult, ...knownForResults].filter(Boolean);
-        });
-
-        const filteredResults = processedResults.filter(
-          (item) => item.media_type === "movie" || item.media_type === "tv"
-        );
-
-        setSearchResults(filteredResults);
-        // console.log("Filtered Search Results:", filteredResults);
+        setSearchResults(data.results);
+        console.log(data);
       } catch (error) {
         console.error("Error fetching search results:", error);
       }
@@ -159,6 +133,64 @@ const MoviesList = () => {
       fetchSearchResults();
     }
   }, [API_KEY, query]);
+
+  // Fetch certifications
+  useEffect(() => {
+    async function fetchCertifications() {
+      try {
+        const combinedItems = [
+          ...nowPlaying,
+          ...popular,
+          ...toprated,
+          ...Upcoming,
+          ...searchResults,
+        ];
+
+        if (combinedItems.length === 0) {
+          setCertifications({});
+          return;
+        }
+
+        // Fetch movie release dates
+        const movieRequests = combinedItems.map((item) =>
+          fetch(
+            `https://api.themoviedb.org/3/movie/${item.id}/release_dates?api_key=${API_KEY}`
+          ).then((response) => response.json())
+        );
+
+        const movieResponses = await Promise.all(movieRequests);
+
+        // Process movie certifications
+        const movieCertifications = movieResponses.reduce((acc, response) => {
+          const id = response.id;
+          const indiaRelease = response.results.find(
+            (r) => r.iso_3166_1 === "IN"
+          );
+
+          if (indiaRelease) {
+            const certification = indiaRelease.release_dates.find(
+              (r) => r.certification.trim() !== ""
+            );
+            acc[id] = certification ? certification.certification : "Unrated";
+          } else {
+            acc[id] = "Unrated";
+          }
+
+          return acc;
+        }, {});
+
+        setCertifications(movieCertifications);
+      } catch (error) {
+        console.error("Error fetching certifications:", error);
+      }
+    }
+    fetchCertifications();
+  }, [nowPlaying, popular, toprated, Upcoming, searchResults, API_KEY]);
+
+  // Function to get certification based on item type and id
+  const getCertification = (item) => {
+    return certifications[item.id] || "Unrated";
+  };
 
   return (
     <div className="mt-2.5 mx-5 w-full">
@@ -225,7 +257,7 @@ const MoviesList = () => {
                         }
                         icon={<MovieIcon />}
                         type={"Movie"}
-                        adult={item.adult}
+                        adult={getCertification(item)}
                         title={item.title || item.original_title}
                       />
                     </CarouselItem>
@@ -245,9 +277,8 @@ const MoviesList = () => {
                 plugins={[plugin.current]}
                 onMouseEnter={plugin.current.stop}
                 onMouseLeave={plugin.current.reset}
-                infinite
               >
-                <CarouselContent className="-ml-8">
+                <CarouselContent className="-ml-8 relative">
                   {popular.map((item, id) => (
                     <CarouselItem
                       key={id}
@@ -262,14 +293,14 @@ const MoviesList = () => {
                         }
                         icon={<MovieIcon />}
                         type={"Movie"}
-                        adult={item.adult}
+                        adult={getCertification(item)}
                         title={item.title || item.original_title}
                       />
                     </CarouselItem>
                   ))}
                 </CarouselContent>
                 <CarouselPrevious className="left-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
-                <CarouselNext className="right-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+                <CarouselNext className="right-[-16px]  top-[100px] bg-primary-col1 border-none text-white" />
               </Carousel>
             </div>
 
@@ -282,7 +313,6 @@ const MoviesList = () => {
                 plugins={[plugin.current]}
                 onMouseEnter={plugin.current.stop}
                 onMouseLeave={plugin.current.reset}
-                infinite
               >
                 <CarouselContent className="-ml-8">
                   {toprated.map((item, id) => (
@@ -299,14 +329,14 @@ const MoviesList = () => {
                         }
                         icon={<MovieIcon />}
                         type={"Movie"}
-                        adult={item.adult}
+                        adult={getCertification(item)}
                         title={item.title || item.original_title}
                       />
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="left-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
-                <CarouselNext className="right-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+                <CarouselPrevious className="left-[-16px]  top-[100px] bg-primary-col1 border-none text-white" />
+                <CarouselNext className="right-[-16px]  top-[100px] bg-primary-col1 border-none text-white" />
               </Carousel>
             </div>
 
@@ -319,7 +349,6 @@ const MoviesList = () => {
                 plugins={[plugin.current]}
                 onMouseEnter={plugin.current.stop}
                 onMouseLeave={plugin.current.reset}
-                infinite
               >
                 <CarouselContent className="-ml-8">
                   {Upcoming.map((item, id) => (
@@ -336,14 +365,14 @@ const MoviesList = () => {
                         }
                         icon={<MovieIcon />}
                         type={"Movie"}
-                        adult={item.adult}
+                        adult={getCertification(item)}
                         title={item.title || item.original_title}
                       />
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="left-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
-                <CarouselNext className="right-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+                <CarouselPrevious className="left-[-16px]  top-[100px] bg-primary-col1 border-none text-white" />
+                <CarouselNext className="right-[-16px]  top-[100px] bg-primary-col1 border-none text-white" />
               </Carousel>
             </div>
           </>
@@ -365,7 +394,7 @@ const MoviesList = () => {
                 }
                 icon={<MovieIcon />}
                 type={"Movie"}
-                adult={item.adult}
+                adult={getCertification(item)}
                 title={item.title || item.original_title}
               />
             ))}

@@ -161,7 +161,7 @@ const Dashboard = () => {
     }
   }, [API_KEY, query]);
 
-  // Fetch certifications for movies and TV shows
+  // Fetch certifications
   useEffect(() => {
     const fetchCertifications = async () => {
       try {
@@ -201,7 +201,7 @@ const Dashboard = () => {
 
           if (indiaRelease) {
             const certification = indiaRelease.release_dates.find(
-              (r) => r.certification.trim() !== "" // Ensure certification is not empty
+              (r) => r.certification.trim() !== ""
             );
             acc[id] = certification ? certification.certification : "Unrated";
           } else {
@@ -234,7 +234,7 @@ const Dashboard = () => {
     fetchCertifications();
   }, [trending, recommended, searchResults, API_KEY]);
 
-  // Function to get certification based on item type and id
+  // Function to get certification
   const getCertification = (item) => {
     if (item.media_type === "tv") {
       return certifications.tvShows[item.id] || "Unrated";
@@ -330,6 +330,7 @@ const Dashboard = () => {
               </Carousel>
             </div>
 
+            {/* Recommendations */}
             <div className="mt-10">
               <h1 className="text-white text-xl font-semibold">
                 Recommended for you

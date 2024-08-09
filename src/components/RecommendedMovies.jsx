@@ -10,7 +10,7 @@ const RecommendedMovies = ({ img, year, icon, type, adult, title }) => {
         className="rounded-lg object-cover"
       />
 
-      <div className="absolute top-1 right-1 bg-black p-1.5 bg-opacity-35 rounded-full">
+      <div className="absolute top-1 right-1 bg-black p-1.5 bg-opacity-35 rounded-full z-10">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -32,16 +32,18 @@ const RecommendedMovies = ({ img, year, icon, type, adult, title }) => {
         </svg>
       </div>
 
-      <div className="mt-2 text-slate-200 flex items-center text-sm capitalize">
-        {year}&nbsp;
-        <span className="w-0.5 h-0.5 rounded-full bg-slate-200"></span>
-        &nbsp;
-        {icon}
-        &nbsp;{type}&nbsp;
-        <span className="w-0.5 h-0.5 rounded-full bg-slate-200"></span>
-        &nbsp;{adult}
+      <div className="">
+        <div className="mt-2 text-slate-200 flex items-center text-sm capitalize">
+          {year}&nbsp;
+          <span className="w-0.5 h-0.5 rounded-full bg-slate-200"></span>
+          &nbsp;
+          {icon}
+          &nbsp;{type}&nbsp;
+          <span className="w-0.5 h-0.5 rounded-full bg-slate-200"></span>
+          &nbsp;{adult}
+        </div>
+        <h2 className="text-white text-lg font-bold">{title}</h2>
       </div>
-      <h2 className="text-white font-bold">{title}</h2>
     </div>
   );
 };
