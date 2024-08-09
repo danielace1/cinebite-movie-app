@@ -21,6 +21,10 @@ const Dashboard = () => {
   const [seriesId, setSeriesId] = useState([]);
   const [query, setQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [certifications, setCertifications] = useState({
+    movies: {},
+    tvShows: {},
+  });
 
   const plugin = useRef(
     Autoplay({
@@ -38,7 +42,7 @@ const Dashboard = () => {
     const fetchTrending = async () => {
       try {
         const response = await fetch(
-          `https://api.themoviedb.org/3/trending/all/day?language=ta&region=IN&api_key=${API_KEY}`
+          `https://api.themoviedb.org/3/trending/all/day?language=en&region=IN&api_key=${API_KEY}`
         );
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -54,7 +58,7 @@ const Dashboard = () => {
         setMovieId(movies.map((movie) => movie.id));
         setSeriesId(series.map((series) => series.id));
 
-        console.log(data);
+        // console.log(data);
       } catch (error) {
         console.error("Error fetching movies:", error);
       }
@@ -70,14 +74,14 @@ const Dashboard = () => {
         // Fetch movie recommendations
         const movieRequests = movieId.map((id) =>
           fetch(
-            `https://api.themoviedb.org/3/movie/${id}/recommendations?language=ta&region=IN&api_key=${API_KEY}`
+            `https://api.themoviedb.org/3/movie/${id}/recommendations?language=en&region=IN&api_key=${API_KEY}`
           ).then((response) => response.json())
         );
 
         // Fetch series recommendations
         const seriesRequests = seriesId.map((id) =>
           fetch(
-            `https://api.themoviedb.org/3/tv/${id}/recommendations?language=ta&region=IN&api_key=${API_KEY}`
+            `https://api.themoviedb.org/3/tv/${id}/recommendations?language=en&region=IN&api_key=${API_KEY}`
           ).then((response) => response.json())
         );
 
@@ -91,8 +95,16 @@ const Dashboard = () => {
           ...movieResponses.flatMap((response) => response.results),
           ...seriesResponses.flatMap((response) => response.results),
         ];
-        setRecommended(combinedRecommendations);
-        console.log(combinedRecommendations);
+
+        // Use a Set to store unique items by their ID
+        const uniqueRecommendations = Array.from(
+          new Map(
+            combinedRecommendations.map((item) => [item.id, item])
+          ).values()
+        );
+
+        setRecommended(uniqueRecommendations);
+        // console.log(uniqueRecommendations);
       } catch (error) {
         console.error("Error fetching recommendations:", error);
       }
@@ -108,7 +120,7 @@ const Dashboard = () => {
     async function fetchSearchResults() {
       try {
         const response = await fetch(
-          `https://api.themoviedb.org/3/search/multi?query=${query}&language=ta&region=IN&api_key=${API_KEY}`
+          `https://api.themoviedb.org/3/search/multi?query=${query}&language=en&region=IN&api_key=${API_KEY}`
         );
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -122,6 +134,90 @@ const Dashboard = () => {
 
     fetchSearchResults();
   });
+
+  // Fetch certifications for movies and TV shows
+  useEffect(() => {
+    const fetchCertifications = async () => {
+      try {
+        const combinedItems = [...trending, ...recommended];
+
+        if (combinedItems.length === 0) return;
+
+        // Fetch movie release dates
+        const movieRequests = combinedItems
+          .filter((item) => item.media_type === "movie")
+          .map((item) =>
+            fetch(
+              `https://api.themoviedb.org/3/movie/${item.id}/release_dates?api_key=${API_KEY}`
+            ).then((response) => response.json())
+          );
+
+        // Fetch TV show content ratings
+        const tvShowRequests = combinedItems
+          .filter((item) => item.media_type === "tv")
+          .map((item) =>
+            fetch(
+              `https://api.themoviedb.org/3/tv/${item.id}/content_ratings?api_key=${API_KEY}`
+            ).then((response) => response.json())
+          );
+
+        const [movieResponses, tvShowResponses] = await Promise.all([
+          Promise.all(movieRequests),
+          Promise.all(tvShowRequests),
+        ]);
+
+        // Process movie certifications
+        const movieCertifications = movieResponses.reduce((acc, response) => {
+          const id = response.id;
+          const indiaRelease = response.results.find(
+            (r) => r.iso_3166_1 === "IN"
+          );
+
+          if (indiaRelease) {
+            const certification = indiaRelease.release_dates.find(
+              (r) => r.certification.trim() !== "" // Ensure certification is not empty
+            );
+            acc[id] = certification ? certification.certification : "Unrated";
+          } else {
+            acc[id] = "Unrated";
+          }
+
+          return acc;
+        }, {});
+
+        // Process TV show content ratings
+        const tvShowRatings = tvShowResponses.reduce((acc, response) => {
+          const id = response.id;
+          const ratings = response.results.find((r) => r.iso_3166_1 === "IN");
+          acc[id] = ratings ? ratings.rating : "Unrated";
+          return acc;
+        }, {});
+
+        setCertifications({
+          movies: movieCertifications,
+          tvShows: tvShowRatings,
+        });
+
+        // console.log("Movie Certifications:", movieCertifications);
+        // console.log("TV Ratings:", tvShowRatings);
+      } catch (error) {
+        console.error("Error fetching certifications:", error);
+      }
+    };
+
+    fetchCertifications();
+  }, [trending, recommended, API_KEY]);
+
+  // Function to get certification based on item type and id
+  const getCertification = (item) => {
+    if (item.media_type === "tv") {
+      return certifications.tvShows[item.id] || "Unrated";
+    }
+    if (item.media_type === "movie") {
+      return certifications.movies[item.id] || "Unrated";
+    }
+    return "Unrated";
+  };
 
   return (
     <div className="mt-2.5 mx-5 w-full">
@@ -174,17 +270,18 @@ const Dashboard = () => {
                 onMouseLeave={plugin.current.reset}
               >
                 <CarouselContent className="-ml-8">
-                  {trending.map((item) => (
+                  {trending.map((item, id) => (
                     <CarouselItem
-                      key={item.id}
+                      key={id}
                       className="md:basis-1/2 lg:basis-1/3 pl-8"
                     >
                       <TrendingMovieCard
                         img={`https://image.tmdb.org/t/p/w500${item.backdrop_path}`}
                         year={
                           item.release_date
-                            ? new Date(item.release_date).getFullYear()
-                            : new Date(item.first_air_date).getFullYear()
+                            ? new Date(item.release_date).getFullYear() ||
+                              new Date(item.first_air_date).getFullYear()
+                            : "N/A"
                         }
                         icon={
                           item.media_type === "movie" ? (
@@ -196,7 +293,7 @@ const Dashboard = () => {
                         type={
                           item.media_type === "movie" ? "Movie" : "TV Series"
                         }
-                        adult={item.adult == false ? "13+" : "18+"}
+                        adult={getCertification(item)}
                         title={item.title || item.name || item.original_title}
                       />
                     </CarouselItem>
@@ -219,14 +316,15 @@ const Dashboard = () => {
                     img={item.backdrop_path}
                     year={
                       item.release_date
-                        ? new Date(item.release_date).getFullYear()
-                        : new Date(item.first_air_date).getFullYear()
+                        ? new Date(item.release_date).getFullYear() ||
+                          new Date(item.first_air_date).getFullYear()
+                        : "N/A"
                     }
                     icon={
                       item.media_type === "movie" ? <MovieIcon /> : <TVIcon />
                     }
                     type={item.media_type === "movie" ? "Movie" : "TV Series"}
-                    adult={item.adult == false ? "13+" : "18+"}
+                    adult={getCertification(item)}
                     title={item.title || item.name || item.original_title}
                   />
                 ))}
@@ -246,12 +344,13 @@ const Dashboard = () => {
                 img={item.backdrop_path}
                 year={
                   item.release_date
-                    ? new Date(item.release_date).getFullYear()
-                    : new Date(item.first_air_date).getFullYear()
+                    ? new Date(item.release_date).getFullYear() ||
+                      new Date(item.first_air_date).getFullYear()
+                    : "N/A"
                 }
                 icon={item.media_type === "movie" ? <MovieIcon /> : <TVIcon />}
                 type={item.media_type === "movie" ? "Movie" : "TV Series"}
-                adult={item.adult ? "18+" : "13+"}
+                adult={getCertification(item)}
                 title={item.title || item.name || item.original_title}
               />
             ))}

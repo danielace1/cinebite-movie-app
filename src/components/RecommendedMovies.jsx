@@ -48,7 +48,7 @@ const RecommendedMovies = ({ img, year, icon, type, adult, title }) => {
 
 RecommendedMovies.propTypes = {
   img: PropTypes.string,
-  year: PropTypes.number,
+  year: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   icon: PropTypes.object,
   type: PropTypes.string,
   adult: PropTypes.string,
