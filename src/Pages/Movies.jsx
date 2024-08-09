@@ -43,7 +43,7 @@ const MoviesList = () => {
         }
         const data = await response.json();
         setNowPlaying(data.results);
-        console.log(data);
+        // console.log(data);
       } catch (error) {
         console.error("Error fetching now playing movies:", error);
       }
@@ -63,7 +63,7 @@ const MoviesList = () => {
         }
         const data = await response.json();
         setPopular(data.results);
-        // console.log(data);
+        // console.log("Popular:", data);
       } catch (error) {
         console.error("Error fetching popular movies:", error);
       }
@@ -102,7 +102,7 @@ const MoviesList = () => {
         }
         const data = await response.json();
         setUpcoming(data.results);
-        console.log("Upcoming:", data);
+        // console.log("Upcoming:", data);
       } catch (error) {
         console.error("Error fetching upcoming movies:", error);
       }
@@ -380,7 +380,10 @@ const MoviesList = () => {
       ) : (
         // Search results
         <div className="mt-5">
-          <h1 className="text-white text-xl font-semibold">Search Results</h1>
+          <h1 className="text-white text-xl font-semibold">
+            Found {searchResults.length} result
+            {searchResults.length !== 1 ? "s" : ""} for &lsquo;{query}&rsquo;
+          </h1>
 
           <div className="mt-5 grid grid-cols-4 gap-8">
             {searchResults.map((item, id) => (

@@ -362,7 +362,10 @@ const Dashboard = () => {
       ) : (
         // Search results
         <div className="mt-5">
-          <h1 className="text-white text-xl font-semibold">Search Results</h1>
+          <h1 className="text-white text-xl font-semibold">
+            Found {searchResults.length} result
+            {searchResults.length !== 1 ? "s" : ""} for &lsquo;{query}&rsquo;
+          </h1>
 
           <div className="mt-5 grid grid-cols-4 gap-8">
             {searchResults.map((item, id) => (
