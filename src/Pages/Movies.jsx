@@ -83,6 +83,7 @@ const MoviesList = () => {
         }
         const data = await response.json();
         setTopRated(data.results);
+        // console.log("Top Rated:", data);
       } catch (error) {
         console.error("Error fetching top rated movies:", error);
       }
@@ -123,7 +124,7 @@ const MoviesList = () => {
         const data = await response.json();
 
         setSearchResults(data.results);
-        console.log(data);
+        // console.log(data);
       } catch (error) {
         console.error("Error fetching search results:", error);
       }
@@ -163,19 +164,46 @@ const MoviesList = () => {
         // Process movie certifications
         const movieCertifications = movieResponses.reduce((acc, response) => {
           const id = response.id;
-          const indiaRelease = response.results.find(
-            (r) => r.iso_3166_1 === "IN"
-          );
+          const data =
+            response.results.find((r) => r.iso_3166_1 === "IN") ||
+            response.results.find((r) => r.iso_3166_1 === "US") ||
+            response.results.find((r) => r.iso_3166_1 === "GB");
 
-          if (indiaRelease) {
-            const certification = indiaRelease.release_dates.find(
+          if (data) {
+            const certification = data.release_dates.find(
               (r) => r.certification.trim() !== ""
             );
-            acc[id] = certification ? certification.certification : "Unrated";
+
+            // Check if certification is empty but data is from "IN", then try other regions
+            if (!certification && data.iso_3166_1 === "IN") {
+              const fallbackData = [
+                response.results.find((r) => r.iso_3166_1 === "US"),
+                response.results.find((r) => r.iso_3166_1 === "GB"),
+              ].find(
+                (r) =>
+                  r &&
+                  r.release_dates.some((rd) => rd.certification.trim() !== "")
+              );
+
+              if (fallbackData) {
+                const fallbackCertification = fallbackData.release_dates.find(
+                  (r) => r.certification.trim() !== ""
+                );
+                acc[id] = fallbackCertification
+                  ? fallbackCertification.certification
+                  : "Unrated";
+              } else {
+                acc[id] = "Unrated";
+              }
+            } else {
+              acc[id] = certification ? certification.certification : "Unrated";
+            }
           } else {
+            // console.log(
+            //   `No data found for movie ID ${id}, setting as "Unrated"`
+            // );
             acc[id] = "Unrated";
           }
-
           return acc;
         }, {});
 

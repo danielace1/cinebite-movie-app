@@ -195,33 +195,89 @@ const Dashboard = () => {
         // Process movie certifications
         const movieCertifications = movieResponses.reduce((acc, response) => {
           const id = response.id;
-          const indiaRelease = response.results.find(
-            (r) => r.iso_3166_1 === "IN"
-          );
+          const data =
+            response.results.find((r) => r.iso_3166_1 === "IN") ||
+            response.results.find((r) => r.iso_3166_1 === "US") ||
+            response.results.find((r) => r.iso_3166_1 === "GB");
 
-          if (indiaRelease) {
-            const certification = indiaRelease.release_dates.find(
+          if (data) {
+            const certification = data.release_dates.find(
               (r) => r.certification.trim() !== ""
             );
-            acc[id] = certification ? certification.certification : "Unrated";
+
+            // Check if certification is empty but data is from "IN", then try other regions
+            if (!certification && data.iso_3166_1 === "IN") {
+              const fallbackData = [
+                response.results.find((r) => r.iso_3166_1 === "US"),
+                response.results.find((r) => r.iso_3166_1 === "GB"),
+              ].find(
+                (r) =>
+                  r &&
+                  r.release_dates.some((rd) => rd.certification.trim() !== "")
+              );
+
+              if (fallbackData) {
+                const fallbackCertification = fallbackData.release_dates.find(
+                  (r) => r.certification.trim() !== ""
+                );
+                acc[id] = fallbackCertification
+                  ? fallbackCertification.certification
+                  : "Unrated";
+              } else {
+                acc[id] = "Unrated";
+              }
+            } else {
+              acc[id] = certification ? certification.certification : "Unrated";
+            }
           } else {
+            // console.log(
+            //   `No data found for movie ID ${id}, setting as "Unrated"`
+            // );
+            acc[id] = "Unrated";
+          }
+          return acc;
+        }, {});
+
+        // Process TV show certifications
+        const tvCertifications = tvShowResponses.reduce((acc, response) => {
+          const id = response.id;
+          const preferredData =
+            response.results.find((r) => r.iso_3166_1 === "IN") ||
+            response.results.find((r) => r.iso_3166_1 === "US") ||
+            response.results.find((r) => r.iso_3166_1 === "GB");
+
+          // If no preferred data, use the first available data
+          const fallbackData = response.results[0];
+
+          const data = preferredData || fallbackData;
+
+          if (data) {
+            const rating = data.rating.trim();
+
+            // If rating is empty, check other regions
+            if (!rating && data.iso_3166_1 === "IN") {
+              const fallbackRating = [
+                response.results.find((r) => r.iso_3166_1 === "US"),
+                response.results.find((r) => r.iso_3166_1 === "GB"),
+              ].find((r) => r && r.rating.trim() !== "");
+
+              acc[id] = fallbackRating ? fallbackRating.rating : "Unrated";
+            } else {
+              acc[id] = rating ? rating : "Unrated";
+            }
+          } else {
+            console.log(
+              `No data found for TV show ID ${id}, setting as "Unrated"`
+            );
             acc[id] = "Unrated";
           }
 
           return acc;
         }, {});
 
-        // Process TV show content ratings
-        const tvShowRatings = tvShowResponses.reduce((acc, response) => {
-          const id = response.id;
-          const ratings = response.results.find((r) => r.iso_3166_1 === "IN");
-          acc[id] = ratings ? ratings.rating : "Unrated";
-          return acc;
-        }, {});
-
         setCertifications({
           movies: movieCertifications,
-          tvShows: tvShowRatings,
+          tvShows: tvCertifications,
         });
 
         // console.log("Movie Certifications:", movieCertifications);

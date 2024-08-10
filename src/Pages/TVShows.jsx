@@ -43,7 +43,7 @@ const TVShows = () => {
         }
         const data = await response.json();
         setAiring(data.results);
-        console.log("Airing Today :", data);
+        // console.log("Airing Today :", data);
       } catch (error) {
         console.error("Error fetching airing today TV shows:", error);
       }
@@ -63,7 +63,7 @@ const TVShows = () => {
         }
         const data = await response.json();
         setOntheAir(data.results);
-        console.log(data);
+        // console.log("on the air:", data);
       } catch (error) {
         console.error("Error fetching on the air TV shows:", error);
       }
@@ -83,7 +83,7 @@ const TVShows = () => {
         }
         const data = await response.json();
         setPopular(data.results);
-        console.log(data);
+        // console.log("popular", data);
       } catch (error) {
         console.error("Error fetching popular TV shows:", error);
       }
@@ -103,7 +103,7 @@ const TVShows = () => {
         }
         const data = await response.json();
         setTopRated(data.results);
-        console.log(data);
+        // console.log("top rated:", data);
       } catch (error) {
         console.error("Error fetching top rated TV shows:", error);
       }
@@ -124,7 +124,7 @@ const TVShows = () => {
         const data = await response.json();
 
         setSearchResults(data.results);
-        console.log(data);
+        // console.log(data);
       } catch (error) {
         console.error("Error fetching search results:", error);
       }
@@ -163,14 +163,34 @@ const TVShows = () => {
         // Process TV show certifications
         const tvCertifications = tvResponses.reduce((acc, response) => {
           const id = response.id;
-          const indiaRelease = response.results.find(
-            (r) => r.iso_3166_1 === "IN"
-          );
+          const preferredData =
+            response.results.find((r) => r.iso_3166_1 === "IN") ||
+            response.results.find((r) => r.iso_3166_1 === "US") ||
+            response.results.find((r) => r.iso_3166_1 === "GB");
 
-          if (indiaRelease) {
-            const rating = indiaRelease.rating.trim();
-            acc[id] = rating ? rating : "Unrated";
+          // If no preferred data, use the first available data
+          const fallbackData = response.results[0];
+
+          const data = preferredData || fallbackData;
+
+          if (data) {
+            const rating = data.rating.trim();
+
+            // If rating is empty, check other regions
+            if (!rating && data.iso_3166_1 === "IN") {
+              const fallbackRating = [
+                response.results.find((r) => r.iso_3166_1 === "US"),
+                response.results.find((r) => r.iso_3166_1 === "GB"),
+              ].find((r) => r && r.rating.trim() !== "");
+
+              acc[id] = fallbackRating ? fallbackRating.rating : "Unrated";
+            } else {
+              acc[id] = rating ? rating : "Unrated";
+            }
           } else {
+            // console.log(
+            //   `No data found for TV show ID ${id}, setting as "Unrated"`
+            // );
             acc[id] = "Unrated";
           }
 
@@ -178,7 +198,7 @@ const TVShows = () => {
         }, {});
 
         setCertifications(tvCertifications);
-        console.log(certifications);
+        // console.log(certifications);
       } catch (error) {
         console.error("Error fetching certifications:", error);
       }
