@@ -43,7 +43,7 @@ const MoviesList = () => {
         }
         const data = await response.json();
         setNowPlaying(data.results);
-        // console.log(data);
+        console.log(data);
       } catch (error) {
         console.error("Error fetching now playing movies:", error);
       }

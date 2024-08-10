@@ -8,6 +8,7 @@ import MoviesList from "./Pages/Movies.jsx";
 import TVShows from "./Pages/TVShows.jsx";
 import Watchlist from "./Pages/Watchlist.jsx";
 import UserLayout from "./Layout/UserLayout.jsx";
+import DetailsPage from "./Pages/DetailsPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
       {
         path: "watchlist",
         element: <Watchlist />,
+      },
+      {
+        path: "details",
+        element: <DetailsPage />,
       },
     ],
   },
