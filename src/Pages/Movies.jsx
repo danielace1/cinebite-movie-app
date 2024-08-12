@@ -32,84 +32,49 @@ const MoviesList = () => {
 
   const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
-  // Now Playing
+  // Fetching Datas
   useEffect(() => {
-    async function fetchNowPlayingMovies() {
+    async function fetchMovies() {
       try {
-        const response = await fetch(
+        // Fetch now playing movies
+        const nowPlaying = await fetch(
           `https://api.themoviedb.org/3/movie/now_playing?language=en&region=IN&api_key=${API_KEY}`
         );
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        setNowPlaying(data.results);
-        console.log(data);
-      } catch (error) {
-        console.error("Error fetching now playing movies:", error);
-      }
-    }
-    fetchNowPlayingMovies();
-  }, [API_KEY]);
 
-  // Popular
-  useEffect(() => {
-    async function fetchPopularMovies() {
-      try {
-        const response = await fetch(
-          `https://api.themoviedb.org/3/movie/popular?language=en&region=IN&api_key=${API_KEY}`
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        setPopular(data.results);
-        // console.log("Popular:", data);
-      } catch (error) {
-        console.error("Error fetching popular movies:", error);
-      }
-    }
-    fetchPopularMovies();
-  }, [API_KEY]);
-
-  // Top rated
-  useEffect(() => {
-    async function fetchTopRatedMovies() {
-      try {
-        const response = await fetch(
+        // Fetch top rated movies
+        const topRated = await fetch(
           `https://api.themoviedb.org/3/movie/top_rated?language=en&region=IN&api_key=${API_KEY}`
         );
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        setTopRated(data.results);
-        console.log("Top Rated:", data);
-      } catch (error) {
-        console.error("Error fetching top rated movies:", error);
-      }
-    }
-    fetchTopRatedMovies();
-  }, [API_KEY]);
 
-  // Upcoming
-  useEffect(() => {
-    async function fetchUpcomingMovies() {
-      try {
-        const response = await fetch(
+        // Fetch upcoming movies
+        const Upcoming = await fetch(
           `https://api.themoviedb.org/3/movie/upcoming?language=en&region=IN&api_key=${API_KEY}`
         );
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+
+        // Fetch Popular movies
+        const popular = await fetch(
+          `https://api.themoviedb.org/3/movie/popular?language=en&region=IN&api_key=${API_KEY}`
+        );
+
+        // Check if response is ok
+        if (!nowPlaying.ok || !topRated.ok || !Upcoming.ok || !popular.ok) {
+          throw new Error(`HTTP error! Status: ${nowPlaying.status}`);
         }
-        const data = await response.json();
-        setUpcoming(data.results);
-        // console.log("Upcoming:", data);
+
+        const nowPlayingData = await nowPlaying.json();
+        const topRatedData = await topRated.json();
+        const upcomingData = await Upcoming.json();
+        const popularData = await popular.json();
+
+        setTopRated(topRatedData.results);
+        setUpcoming(upcomingData.results);
+        setNowPlaying(nowPlayingData.results);
+        setPopular(popularData.results);
       } catch (error) {
-        console.error("Error fetching upcoming movies:", error);
+        console.error("Error fetching movies:", error);
       }
     }
-    fetchUpcomingMovies();
+    fetchMovies();
   }, [API_KEY]);
 
   // Search results
@@ -125,7 +90,7 @@ const MoviesList = () => {
         const data = await response.json();
 
         setSearchResults(data.results);
-        // console.log(data);
+        console.log(data);
       } catch (error) {
         console.error("Error fetching search results:", error);
       }
@@ -252,195 +217,194 @@ const MoviesList = () => {
         </div>
       </div>
 
-      {searchResults.length === 0 ? (
-        query.length > 0 ? (
+      {query.length > 0 ? (
+        searchResults.length === 0 ? (
           <div className="mt-5">
             <h1 className="text-white text-xl font-semibold">
               No Results found
             </h1>
           </div>
         ) : (
-          <>
-            {/* Now Playing */}
-            <div className="mt-5">
-              <h1 className="text-white text-xl font-semibold">Now Playing</h1>
+          <div className="mt-5">
+            <h1 className="text-white text-xl font-semibold">
+              Found {searchResults.length} result
+              {searchResults.length !== 1 ? "s" : ""} for &lsquo;{query}&rsquo;
+            </h1>
 
-              <Carousel
-                className="mt-5"
-                plugins={[plugin.current]}
-                onMouseEnter={plugin.current.stop}
-                onMouseLeave={plugin.current.reset}
-              >
-                <CarouselContent className="-ml-8">
-                  {nowPlaying.map((item, id) => (
-                    <CarouselItem
-                      key={id}
-                      className="md:basis-1/3 lg:basis-1/5 pl-8"
-                    >
-                      <Link to={`${item.id}/details`}>
-                        <TrendingMovieCard
-                          img={`https://image.tmdb.org/t/p/w300${item.poster_path}`}
-                          year={
-                            item.release_date
-                              ? new Date(item.release_date).getFullYear()
-                              : "N/A"
-                          }
-                          icon={<MovieIcon />}
-                          type={"Movie"}
-                          adult={getCertification(item)}
-                          title={item.title || item.original_title}
-                        />
-                      </Link>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-[-16px] bg-primary-col1 border-none text-white" />
-                <CarouselNext className="right-[-16px] bg-primary-col1 border-none text-white" />
-              </Carousel>
+            <div className="mt-5 grid grid-cols-4 gap-8">
+              {searchResults.map((item, id) => (
+                <Link key={id} to={`${item.id}/details`}>
+                  <RecommendedMovies
+                    img={item.backdrop_path}
+                    year={
+                      item.release_date
+                        ? new Date(item.release_date).getFullYear()
+                        : "N/A"
+                    }
+                    icon={<MovieIcon />}
+                    type={"Movie"}
+                    adult={getCertification(item)}
+                    title={item.title || item.original_title}
+                  />
+                </Link>
+              ))}
             </div>
-
-            {/* Popular */}
-            <div className="mt-5">
-              <h1 className="text-white text-xl font-semibold">Popular</h1>
-
-              <Carousel
-                className="mt-5 grid"
-                plugins={[plugin.current]}
-                onMouseEnter={plugin.current.stop}
-                onMouseLeave={plugin.current.reset}
-              >
-                <CarouselContent className="-ml-8 relative">
-                  {popular.map((item, id) => (
-                    <CarouselItem
-                      key={id}
-                      className="md:basis-1/3 lg:basis-1/4 pl-8"
-                    >
-                      <Link to={`${item.id}/details`}>
-                        <RecommendedMovies
-                          img={item.backdrop_path}
-                          year={
-                            item.release_date
-                              ? new Date(item.release_date).getFullYear()
-                              : "N/A"
-                          }
-                          icon={<MovieIcon />}
-                          type={"Movie"}
-                          adult={getCertification(item)}
-                          title={item.title || item.original_title}
-                        />
-                      </Link>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
-                <CarouselNext className="right-[-16px]  top-[100px] bg-primary-col1 border-none text-white" />
-              </Carousel>
-            </div>
-
-            {/* Top rated */}
-            <div className="mt-3">
-              <h1 className="text-white text-xl font-semibold">Top Rated</h1>
-
-              <Carousel
-                className="mt-5 grid"
-                plugins={[plugin.current]}
-                onMouseEnter={plugin.current.stop}
-                onMouseLeave={plugin.current.reset}
-              >
-                <CarouselContent className="-ml-8">
-                  {toprated.map((item, id) => (
-                    <CarouselItem
-                      key={id}
-                      className="md:basis-1/3 lg:basis-1/4 pl-8"
-                    >
-                      <Link to={`${item.id}/details`}>
-                        <RecommendedMovies
-                          img={item.backdrop_path}
-                          year={
-                            item.release_date
-                              ? new Date(item.release_date).getFullYear()
-                              : "N/A"
-                          }
-                          icon={<MovieIcon />}
-                          type={"Movie"}
-                          adult={getCertification(item)}
-                          title={item.title || item.original_title}
-                        />
-                      </Link>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-[-16px]  top-[100px] bg-primary-col1 border-none text-white" />
-                <CarouselNext className="right-[-16px]  top-[100px] bg-primary-col1 border-none text-white" />
-              </Carousel>
-            </div>
-
-            {/* Upcoming */}
-            <div className="mt-3">
-              <h1 className="text-white text-xl font-semibold">Upcoming</h1>
-
-              <Carousel
-                className="mt-5 grid"
-                plugins={[plugin.current]}
-                onMouseEnter={plugin.current.stop}
-                onMouseLeave={plugin.current.reset}
-              >
-                <CarouselContent className="-ml-8">
-                  {Upcoming.map((item, id) => (
-                    <CarouselItem
-                      key={id}
-                      className="md:basis-1/3 lg:basis-1/4 pl-8"
-                    >
-                      <Link to={`${item.id}/details`}>
-                        <RecommendedMovies
-                          img={item.backdrop_path}
-                          year={
-                            item.release_date
-                              ? new Date(item.release_date).getFullYear()
-                              : "N/A"
-                          }
-                          icon={<MovieIcon />}
-                          type={"Movie"}
-                          adult={getCertification(item)}
-                          title={item.title || item.original_title}
-                        />
-                      </Link>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-[-16px]  top-[100px] bg-primary-col1 border-none text-white" />
-                <CarouselNext className="right-[-16px]  top-[100px] bg-primary-col1 border-none text-white" />
-              </Carousel>
-            </div>
-          </>
+          </div>
         )
       ) : (
-        // Search results
-        <div className="mt-5">
-          <h1 className="text-white text-xl font-semibold">
-            Found {searchResults.length} result
-            {searchResults.length !== 1 ? "s" : ""} for &lsquo;{query}&rsquo;
-          </h1>
+        <>
+          {/* Now Playing */}
+          <div className="mt-5">
+            <h1 className="text-white text-xl font-semibold">Now Playing</h1>
 
-          <div className="mt-5 grid grid-cols-4 gap-8">
-            {searchResults.map((item, id) => (
-              <Link key={id} to={`${item.id}/details`}>
-                <RecommendedMovies
-                  img={item.backdrop_path}
-                  year={
-                    item.release_date
-                      ? new Date(item.release_date).getFullYear()
-                      : "N/A"
-                  }
-                  icon={<MovieIcon />}
-                  type={"Movie"}
-                  adult={getCertification(item)}
-                  title={item.title || item.original_title}
-                />
-              </Link>
-            ))}
+            <Carousel
+              className="mt-5"
+              plugins={[plugin.current]}
+              onMouseEnter={plugin.current.stop}
+              onMouseLeave={plugin.current.reset}
+            >
+              <CarouselContent className="-ml-8">
+                {nowPlaying.map((item, id) => (
+                  <CarouselItem
+                    key={id}
+                    className="md:basis-1/3 lg:basis-1/5 pl-8"
+                  >
+                    <Link to={`${item.id}/details`}>
+                      <TrendingMovieCard
+                        img={`https://image.tmdb.org/t/p/w300${item.poster_path}`}
+                        year={
+                          item.release_date
+                            ? new Date(item.release_date).getFullYear()
+                            : "N/A"
+                        }
+                        icon={<MovieIcon />}
+                        type={"Movie"}
+                        adult={getCertification(item)}
+                        title={item.title || item.original_title}
+                      />
+                    </Link>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-[-16px] bg-primary-col1 border-none text-white" />
+              <CarouselNext className="right-[-16px] bg-primary-col1 border-none text-white" />
+            </Carousel>
           </div>
-        </div>
+
+          {/* Popular */}
+          <div className="mt-5">
+            <h1 className="text-white text-xl font-semibold">Popular</h1>
+
+            <Carousel
+              className="mt-5 grid"
+              plugins={[plugin.current]}
+              onMouseEnter={plugin.current.stop}
+              onMouseLeave={plugin.current.reset}
+            >
+              <CarouselContent className="-ml-8 relative">
+                {popular.map((item, id) => (
+                  <CarouselItem
+                    key={id}
+                    className="md:basis-1/3 lg:basis-1/4 pl-8"
+                  >
+                    <Link to={`${item.id}/details`}>
+                      <RecommendedMovies
+                        img={item.backdrop_path}
+                        year={
+                          item.release_date
+                            ? new Date(item.release_date).getFullYear()
+                            : "N/A"
+                        }
+                        icon={<MovieIcon />}
+                        type={"Movie"}
+                        adult={getCertification(item)}
+                        title={item.title || item.original_title}
+                      />
+                    </Link>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+              <CarouselNext className="right-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+            </Carousel>
+          </div>
+
+          {/* Top rated */}
+          <div className="mt-3">
+            <h1 className="text-white text-xl font-semibold">Top Rated</h1>
+
+            <Carousel
+              className="mt-5 grid"
+              plugins={[plugin.current]}
+              onMouseEnter={plugin.current.stop}
+              onMouseLeave={plugin.current.reset}
+            >
+              <CarouselContent className="-ml-8">
+                {toprated.map((item, id) => (
+                  <CarouselItem
+                    key={id}
+                    className="md:basis-1/3 lg:basis-1/4 pl-8"
+                  >
+                    <Link to={`${item.id}/details`}>
+                      <RecommendedMovies
+                        img={item.backdrop_path}
+                        year={
+                          item.release_date
+                            ? new Date(item.release_date).getFullYear()
+                            : "N/A"
+                        }
+                        icon={<MovieIcon />}
+                        type={"Movie"}
+                        adult={getCertification(item)}
+                        title={item.title || item.original_title}
+                      />
+                    </Link>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+              <CarouselNext className="right-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+            </Carousel>
+          </div>
+
+          {/* Upcoming */}
+          <div className="mt-3">
+            <h1 className="text-white text-xl font-semibold">Upcoming</h1>
+
+            <Carousel
+              className="mt-5 grid"
+              plugins={[plugin.current]}
+              onMouseEnter={plugin.current.stop}
+              onMouseLeave={plugin.current.reset}
+            >
+              <CarouselContent className="-ml-8">
+                {Upcoming.map((item, id) => (
+                  <CarouselItem
+                    key={id}
+                    className="md:basis-1/3 lg:basis-1/4 pl-8"
+                  >
+                    <Link to={`${item.id}/details`}>
+                      <RecommendedMovies
+                        img={item.backdrop_path}
+                        year={
+                          item.release_date
+                            ? new Date(item.release_date).getFullYear()
+                            : "N/A"
+                        }
+                        icon={<MovieIcon />}
+                        type={"Movie"}
+                        adult={getCertification(item)}
+                        title={item.title || item.original_title}
+                      />
+                    </Link>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+              <CarouselNext className="right-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+            </Carousel>
+          </div>
+        </>
       )}
     </div>
   );

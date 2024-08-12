@@ -22,6 +22,7 @@ import "react-modal-video/css/modal-video.css";
 
 import noProfile from "../../public/no-profile.png";
 import RecommendedMovies from "@/components/RecommendedMovies";
+import MovieIcon from "@/components/Icons/MovieIcon";
 
 const DetailsPage = () => {
   const { id } = useParams();
@@ -112,7 +113,7 @@ const DetailsPage = () => {
 
         // Fetch movie videos
         const videosResponse = await fetch(
-          `https://api.themoviedb.org/3/movie/${id}/videos?api_key=${API_KEY}&language=en-IN`
+          `https://api.themoviedb.org/3/movie/${id}/videos?api_key=${API_KEY}`
         );
 
         // Fetch the backdrops & posters
@@ -135,6 +136,12 @@ const DetailsPage = () => {
         const backdropsData = await backdropsResponse.json();
         const recommendationsData = await recommendationsResponse.json();
 
+        const teaser = videosData.results.filter(
+          (v) =>
+            (v.name === "Final Trailer" || v.name === "Official Trailer") &&
+            v.type === "Trailer"
+        );
+
         setDetails(data);
         setWatchProviders(watchProvidersData.results.IN);
         setGenre(data.genres);
@@ -145,12 +152,7 @@ const DetailsPage = () => {
         setBackdrops(backdropsData.backdrops);
         setPosters(backdropsData.posters);
         setRecommendations(recommendationsData.results);
-
-        const teaser = videosData.results.filter(
-          (v) => v.name === "Final Trailer"
-        );
         setTrailer(teaser);
-        console.log(teaser);
 
         // console.log(watchProvidersData.results.IN);
         // console.log(certificationsData);
@@ -159,7 +161,10 @@ const DetailsPage = () => {
         // console.log(videosData.results);
         // console.log(backdropsData);
         // console.log(recommendationsData.results);
+        // console.log(teaser);
+        console.log(recommendationsData);
 
+        // Calculate the percentage
         const voteAverage = data.vote_average;
         if (voteAverage > 0) {
           const rating = Math.floor((voteAverage / 10) * 100);
@@ -192,22 +197,24 @@ const DetailsPage = () => {
           setTextColor(isLight ? "text-black" : "text-white");
         };
 
-        // handle certifications
         const certs = certificationsData.results;
         const priorityOrder = ["IN", "US", "GB"];
         let highestPriorityCert = null;
+        let inRegionExists = false; // To check if the IN region exists
 
         for (const region of priorityOrder) {
           const regionCerts = certs.find((r) => r.iso_3166_1 === region);
           if (regionCerts) {
+            if (region === "IN") inRegionExists = true; // IN region is found
+
             for (const releaseDate of regionCerts.release_dates) {
               if (releaseDate.certification) {
                 highestPriorityCert = {
-                  region: region,
+                  region: inRegionExists ? "IN" : region, // Display region as IN if IN exists
                   release_date: releaseDate.release_date,
                   certification: releaseDate.certification,
                 };
-                break; // Exit the inner loop once a certification is found
+                break;
               }
             }
             if (highestPriorityCert) break;
@@ -526,7 +533,7 @@ const DetailsPage = () => {
                         }
                         alt={credit.name}
                         className={`rounded-t-lg object-cover ${
-                          credit.profile_path ? "" : "h-[260px]"
+                          credit.profile_path ? "" : "h-[250px]"
                         }`}
                       />
                       <div className="pt-4 p-3 bg-primary-col1 text-white rounded-b-lg h-32">
@@ -584,78 +591,88 @@ const DetailsPage = () => {
           <h1 className="text-2xl text-white font-semibold">Reviews</h1>
 
           <div className="mt-5 w-10/12">
-            <ScrollArea className="h-64 border rounded-xl border-slate-700 bg-primary-col1 px-5 py-3">
-              <Carousel className="grid grid-cols-1" plugins={[plugin.current]}>
-                <CarouselContent>
-                  {reviews.map((review) => (
-                    <CarouselItem key={review.id} className="">
-                      <div className="flex items-center space-x-4">
-                        <div>
-                          <img
-                            src={
-                              review.author_details.avatar_path
-                                ? `https://media.themoviedb.org/t/p/w45${review.author_details.avatar_path}`
-                                : `https://ui-avatars.com/api/?background=random&name=${review.author_details.username}`
-                            }
-                            alt={review.author_details.username}
-                            className="rounded-full w-12 h-12 object-cover"
-                          />
-                        </div>
-                        <div className="text-white">
-                          <h1 className="font-semibold text-lg">
-                            A review by{" "}
-                            <span className="capitalize">
-                              {review.author || review.author_details.username}
-                            </span>
-                          </h1>
-                          <div className="mt-1.5 flex items-center space-x-2">
-                            <div className="flex items-center bg-slate-500 rounded-md px-1 py-0.5 text-sm font-semibold">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                className="text-white fill-current"
-                              >
-                                <path d="m12 16.3l-3.7 2.825q-.275.225-.6.213t-.575-.188t-.387-.475t-.013-.65L8.15 13.4l-3.625-2.575q-.3-.2-.375-.525t.025-.6t.35-.488t.6-.212H9.6l1.45-4.8q.125-.35.388-.538T12 3.475t.563.188t.387.537L14.4 9h4.475q.35 0 .6.213t.35.487t.025.6t-.375.525L15.85 13.4l1.425 4.625q.125.35-.012.65t-.388.475t-.575.188t-.6-.213z"></path>
-                              </svg>
-                              {review.author_details.rating !== undefined
-                                ? Math.floor(
-                                    (review.author_details.rating / 10) * 100
-                                  )
-                                : "0"}
-                              <span className="text-xs">%</span>
-                            </div>
-                            <div className="font-extralight">
-                              Written by{" "}
-                              <span>{review.author_details.username}</span> on{" "}
-                              {new Date(review.created_at).toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                  timeZone: "UTC",
-                                }
-                              )}
+            {reviews.length > 0 ? (
+              <ScrollArea className="h-64 border rounded-xl border-slate-700 bg-primary-col1 px-5 py-3">
+                <Carousel
+                  className="grid grid-cols-1"
+                  plugins={[plugin.current]}
+                >
+                  <CarouselContent>
+                    {reviews.map((review) => (
+                      <CarouselItem key={review.id} className="">
+                        <div className="flex items-center space-x-4">
+                          <div>
+                            <img
+                              src={
+                                review.author_details.avatar_path
+                                  ? `https://media.themoviedb.org/t/p/w45${review.author_details.avatar_path}`
+                                  : `https://ui-avatars.com/api/?background=random&name=${review.author_details.username}`
+                              }
+                              alt={review.author_details.username}
+                              className="rounded-full w-12 h-12 object-cover"
+                            />
+                          </div>
+                          <div className="text-white">
+                            <h1 className="font-semibold text-lg">
+                              A review by{" "}
+                              <span className="capitalize">
+                                {review.author ||
+                                  review.author_details.username}
+                              </span>
+                            </h1>
+                            <div className="mt-1.5 flex items-center space-x-2">
+                              <div className="flex items-center bg-slate-500 rounded-md px-1 py-0.5 text-sm font-semibold">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 24 24"
+                                  className="text-white fill-current"
+                                >
+                                  <path d="m12 16.3l-3.7 2.825q-.275.225-.6.213t-.575-.188t-.387-.475t-.013-.65L8.15 13.4l-3.625-2.575q-.3-.2-.375-.525t.025-.6t.35-.488t.6-.212H9.6l1.45-4.8q.125-.35.388-.538T12 3.475t.563.188t.387.537L14.4 9h4.475q.35 0 .6.213t.35.487t.025.6t-.375.525L15.85 13.4l1.425 4.625q.125.35-.012.65t-.388.475t-.575.188t-.6-.213z"></path>
+                                </svg>
+                                {review.author_details.rating !== undefined
+                                  ? Math.floor(
+                                      (review.author_details.rating / 10) * 100
+                                    )
+                                  : "0"}
+                                <span className="text-xs">%</span>
+                              </div>
+                              <div className="font-extralight">
+                                Written by{" "}
+                                <span>{review.author_details.username}</span> on{" "}
+                                {new Date(review.created_at).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                    timeZone: "UTC",
+                                  }
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div className="mt-5">
-                        <ReactMarkdown
-                          rehypePlugins={[rehypeRaw, rehypeSanitize]}
-                          className="text-gray-200"
-                        >
-                          {review.content}
-                        </ReactMarkdown>
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-              </Carousel>
-            </ScrollArea>
+                        <div className="mt-5">
+                          <ReactMarkdown
+                            rehypePlugins={[rehypeRaw, rehypeSanitize]}
+                            className="text-gray-200"
+                          >
+                            {review.content}
+                          </ReactMarkdown>
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                </Carousel>
+              </ScrollArea>
+            ) : (
+              <div className="text-white font-semibold">
+                We currently don&apos;t have any reviews for {details?.title}
+              </div>
+            )}
           </div>
         </div>
 
@@ -687,39 +704,45 @@ const DetailsPage = () => {
               </TabsList>
               <TabsContent value="videos">
                 {/* Videos */}
-                <Carousel className="grid" plugins={[plugin.current]}>
-                  <CarouselContent>
-                    {videos.map((video) => (
-                      <CarouselItem key={video.id} className="basis-1/2 pl-0">
-                        <div className="relative">
-                          <img
-                            src={`https://i.ytimg.com/vi/${video.key}/maxresdefault.jpg`}
-                            className="w-full h-72 hover:cursor-pointer object-cover"
-                            alt={video.name}
-                          />
-                          <div
-                            className="absolute inset-0 flex items-center justify-center hover:cursor-pointer"
-                            onClick={() => openModal(video.key)}
-                          >
-                            <span className="w-16 h-16 bg-primary-col1 rounded-full grid place-items-center hover:bg-slate-800 transition">
-                              <svg
-                                className="w-6 h-6 text-white"
-                                viewBox="0 0 16 18"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  d="M15 7.26795C16.3333 8.03775 16.3333 9.96225 15 10.7321L3 17.6603C1.66667 18.4301 1.01267e-06 17.4678 1.07997e-06 15.9282L1.68565e-06 2.0718C1.75295e-06 0.532196 1.66667 -0.430054 3 0.339746L15 7.26795Z"
-                                  fill="white"
-                                />
-                              </svg>
-                            </span>
+                {backdrops.length > 0 ? (
+                  <Carousel className="grid" plugins={[plugin.current]}>
+                    <CarouselContent>
+                      {videos.map((video) => (
+                        <CarouselItem key={video.id} className="basis-1/2 pl-0">
+                          <div className="relative">
+                            <img
+                              src={`https://i.ytimg.com/vi/${video.key}/maxresdefault.jpg`}
+                              className="w-full h-72 hover:cursor-pointer object-cover"
+                              alt={video.name}
+                            />
+                            <div
+                              className="absolute inset-0 flex items-center justify-center hover:cursor-pointer"
+                              onClick={() => openModal(video.key)}
+                            >
+                              <span className="w-16 h-16 bg-primary-col1 rounded-full grid place-items-center hover:bg-slate-800 transition">
+                                <svg
+                                  className="w-6 h-6 text-white"
+                                  viewBox="0 0 16 18"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    d="M15 7.26795C16.3333 8.03775 16.3333 9.96225 15 10.7321L3 17.6603C1.66667 18.4301 1.01267e-06 17.4678 1.07997e-06 15.9282L1.68565e-06 2.0718C1.75295e-06 0.532196 1.66667 -0.430054 3 0.339746L15 7.26795Z"
+                                    fill="white"
+                                  />
+                                </svg>
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                </Carousel>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                  </Carousel>
+                ) : (
+                  <div className="text-white text-center h-72 flex items-center justify-center">
+                    No Videos Found
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="backdrops">
@@ -752,47 +775,72 @@ const DetailsPage = () => {
                 </Carousel>
               </TabsContent>
 
+              {/* Modal Video */}
               <ModalVideo
                 channel="youtube"
                 isOpen={isOpen}
                 videoId={currentVideoKey}
                 onClose={closeModal}
                 allowFullScreen
-                animationSpeed="300"
+                animationSpeed={300}
               />
             </Tabs>
           </div>
         </div>
 
         {/* Recommendations */}
-        <div className="mt-8 w-10/12">
-          <h1 className="text-2xl text-white font-semibold">Recommendations</h1>
+        {recommendations.length > 0 ? (
+          <div className="mt-8 w-10/12">
+            <h1 className="text-2xl text-white font-semibold">
+              Recommendations
+            </h1>
 
-          <Carousel
-            className="mt-5 grid"
-            plugins={[plugin.current]}
-            onMouseEnter={plugin.current.stop}
-            onMouseLeave={plugin.current.reset}
-          >
-            <CarouselContent className="-ml-3 relative">
-              {recommendations.map((item, id) => (
-                <CarouselItem
-                  key={id}
-                  className="md:basis-1/3 lg:basis-1/4 pl-3"
-                >
-                  <Link to={`/user/movies/${item.id}/details`}>
-                    <RecommendedMovies
-                      img={item.backdrop_path}
-                      title={item.title || item.original_title}
-                    />
-                  </Link>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="left-[-16px] top-[80px] bg-primary-col1 border-none text-white" />
-            <CarouselNext className="right-[-16px]  top-[80px] bg-primary-col1 border-none text-white" />
-          </Carousel>
-        </div>
+            <Carousel
+              className="mt-5 grid"
+              plugins={[plugin.current]}
+              onMouseEnter={plugin.current.stop}
+              onMouseLeave={plugin.current.reset}
+            >
+              <CarouselContent className="-ml-3 relative">
+                {recommendations.map((item, id) => (
+                  <CarouselItem
+                    key={id}
+                    className="md:basis-1/3 lg:basis-1/4 pl-3"
+                  >
+                    <Link to={`/user/movies/${item.id}/details`}>
+                      <RecommendedMovies
+                        img={item.backdrop_path}
+                        year={
+                          item.release_date
+                            ? new Date(item.release_date).getFullYear()
+                            : "N/A"
+                        }
+                        icon={
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            className="text-yellow-300 fill-current"
+                          >
+                            <path d="m12 16.3l-3.7 2.825q-.275.225-.6.213t-.575-.188t-.387-.475t-.013-.65L8.15 13.4l-3.625-2.575q-.3-.2-.375-.525t.025-.6t.35-.488t.6-.212H9.6l1.45-4.8q.125-.35.388-.538T12 3.475t.563.188t.387.537L14.4 9h4.475q.35 0 .6.213t.35.487t.025.6t-.375.525L15.85 13.4l1.425 4.625q.125.35-.012.65t-.388.475t-.575.188t-.6-.213z"></path>
+                          </svg>
+                        }
+                        type={`${Math.floor((item.vote_average / 10) * 100)}%`}
+                        adult={""}
+                        title={item.title || item.original_title}
+                      />
+                    </Link>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-[-16px] top-[80px] bg-primary-col1 border-none text-white" />
+              <CarouselNext className="right-[-16px]  top-[80px] bg-primary-col1 border-none text-white" />
+            </Carousel>
+          </div>
+        ) : (
+          ""
+        )}
       </div>
     </div>
   );

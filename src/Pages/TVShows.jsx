@@ -11,6 +11,7 @@ import TrendingMovieCard from "@/components/TrendingMovieCard";
 import RecommendedMovies from "@/components/RecommendedMovies";
 import TVIcon from "@/components/Icons/TVShowIcon";
 import noPoster from "../../public/no-poster.jpeg";
+import { Link } from "react-router-dom";
 
 const TVShows = () => {
   const [airing, setAiring] = useState([]);
@@ -32,84 +33,49 @@ const TVShows = () => {
 
   const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
-  // Airing today
+  // Fetching Datas
   useEffect(() => {
-    async function fetchAiringToday() {
+    async function fetchTVshows() {
       try {
-        const response = await fetch(
+        // Airing Today
+        const airingToday = await fetch(
           `https://api.themoviedb.org/3/tv/airing_today?language=en&region=IN&api_key=${API_KEY}`
         );
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        setAiring(data.results);
-        // console.log("Airing Today :", data);
-      } catch (error) {
-        console.error("Error fetching airing today TV shows:", error);
-      }
-    }
-    fetchAiringToday();
-  }, [API_KEY]);
 
-  // On the air
-  useEffect(() => {
-    async function fetchOnTheAir() {
-      try {
-        const response = await fetch(
+        // On the air
+        const onTheAir = await fetch(
           `https://api.themoviedb.org/3/tv/on_the_air?language=en&region=IN&api_key=${API_KEY}`
         );
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        setOntheAir(data.results);
-        // console.log("on the air:", data);
-      } catch (error) {
-        console.error("Error fetching on the air TV shows:", error);
-      }
-    }
-    fetchOnTheAir();
-  }, [API_KEY]);
 
-  // Popular TV shows
-  useEffect(() => {
-    async function fetchPopularMovies() {
-      try {
-        const response = await fetch(
+        // Popular TV shows
+        const popular = await fetch(
           `https://api.themoviedb.org/3/discover/tv?language=en&sort_by=popularity.desc&region=IN&page=1&api_key=${API_KEY}`
         );
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        setPopular(data.results);
-        // console.log("popular", data);
-      } catch (error) {
-        console.error("Error fetching popular TV shows:", error);
-      }
-    }
-    fetchPopularMovies();
-  }, [API_KEY]);
 
-  // Top rated TV shows
-  useEffect(() => {
-    async function fetchTopRatedMovies() {
-      try {
-        const response = await fetch(
+        // Top Rated
+        const topRated = await fetch(
           `https://api.themoviedb.org/3/tv/top_rated?language=en&region=IN&api_key=${API_KEY}`
         );
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+
+        // Check if the response is ok
+        if (!airingToday.ok || !onTheAir.ok || !popular.ok || !topRated.ok) {
+          throw new Error(`HTTP error! Status: ${airingToday.status}`);
         }
-        const data = await response.json();
-        setTopRated(data.results);
-        // console.log("top rated:", data);
+
+        const airingTodayData = await airingToday.json();
+        const onTheAirData = await onTheAir.json();
+        const popularData = await popular.json();
+        const topRatedData = await topRated.json();
+
+        setAiring(airingTodayData.results);
+        setOntheAir(onTheAirData.results);
+        setPopular(popularData.results);
+        setTopRated(topRatedData.results);
       } catch (error) {
-        console.error("Error fetching top rated TV shows:", error);
+        console.error("Error fetching TV shows:", error);
       }
     }
-    fetchTopRatedMovies();
+    fetchTVshows();
   }, [API_KEY]);
 
   // Search results
@@ -243,190 +209,190 @@ const TVShows = () => {
         </div>
       </div>
 
-      {searchResults.length === 0 ? (
-        query.length > 0 ? (
+      {query.length > 0 ? (
+        searchResults.length === 0 ? (
           <div className="mt-5">
             <h1 className="text-white text-xl font-semibold">
               No Results found
             </h1>
           </div>
         ) : (
-          <>
-            {/* Airing Today */}
-            <div className="mt-5">
-              <h1 className="text-white text-xl font-semibold">Airing Today</h1>
+          <div className="mt-5">
+            <h1 className="text-white text-xl font-semibold">
+              Found {searchResults.length} result
+              {searchResults.length !== 1 ? "s" : ""} for &lsquo;{query}&rsquo;
+            </h1>
 
-              <Carousel
-                className="mt-5"
-                plugins={[plugin.current]}
-                onMouseEnter={plugin.current.stop}
-                onMouseLeave={plugin.current.reset}
-              >
-                <CarouselContent className="-ml-8">
-                  {airing.map((item, id) => (
-                    <CarouselItem
-                      key={id}
-                      className="md:basis-1/3 lg:basis-1/5 pl-8"
-                    >
-                      <TrendingMovieCard
-                        img={
-                          item.poster_path
-                            ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
-                            : noPoster
-                        }
-                        year={
-                          item.first_air_date
-                            ? new Date(item.first_air_date).getFullYear()
-                            : "N/A"
-                        }
-                        icon={<TVIcon />}
-                        type={"Movie"}
-                        adult={getCertification(item)}
-                        title={item.name || item.original_name}
-                      />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-[-16px] bg-primary-col1 border-none text-white" />
-                <CarouselNext className="right-[-16px] bg-primary-col1 border-none text-white" />
-              </Carousel>
+            <div className="mt-5 grid grid-cols-4 gap-8">
+              {searchResults.map((item, id) => (
+                <Link key={id} to={`${item.id}/details`}>
+                  <RecommendedMovies
+                    img={item.backdrop_path}
+                    year={
+                      item.first_air_date
+                        ? new Date(item.first_air_date).getFullYear()
+                        : "N/A"
+                    }
+                    icon={<TVIcon />}
+                    type={"TV Series"}
+                    adult={getCertification(item)}
+                    title={item.name || item.original_name}
+                  />
+                </Link>
+              ))}
             </div>
-
-            {/* On the Air */}
-            <div className="mt-5">
-              <h1 className="text-white text-xl font-semibold">On the Air</h1>
-
-              <Carousel
-                className="mt-5 grid"
-                plugins={[plugin.current]}
-                onMouseEnter={plugin.current.stop}
-                onMouseLeave={plugin.current.reset}
-              >
-                <CarouselContent className="-ml-8 relative">
-                  {ontheAir.map((item, id) => (
-                    <CarouselItem
-                      key={id}
-                      className="md:basis-1/3 lg:basis-1/4 pl-8"
-                    >
-                      <RecommendedMovies
-                        img={item.backdrop_path}
-                        year={
-                          item.first_air_date
-                            ? new Date(item.first_air_date).getFullYear()
-                            : "N/A"
-                        }
-                        icon={<TVIcon />}
-                        type={"Movie"}
-                        adult={getCertification(item)}
-                        title={item.name || item.original_name}
-                      />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
-                <CarouselNext className="right-[-16px]  top-[100px] bg-primary-col1 border-none text-white" />
-              </Carousel>
-            </div>
-
-            {/* Popular */}
-            <div className="mt-5">
-              <h1 className="text-white text-xl font-semibold">Popular</h1>
-
-              <Carousel
-                className="mt-5 grid"
-                plugins={[plugin.current]}
-                onMouseEnter={plugin.current.stop}
-                onMouseLeave={plugin.current.reset}
-              >
-                <CarouselContent className="-ml-8">
-                  {popular.map((item, id) => (
-                    <CarouselItem
-                      key={id}
-                      className="md:basis-1/3 lg:basis-1/4 pl-8"
-                    >
-                      <RecommendedMovies
-                        img={item.backdrop_path}
-                        year={
-                          item.first_air_date
-                            ? new Date(item.first_air_date).getFullYear()
-                            : "N/A"
-                        }
-                        icon={<TVIcon />}
-                        type={"Movie"}
-                        adult={getCertification(item)}
-                        title={item.name || item.original_name}
-                      />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-[-16px]  top-[100px] bg-primary-col1 border-none text-white" />
-                <CarouselNext className="right-[-16px]  top-[100px] bg-primary-col1 border-none text-white" />
-              </Carousel>
-            </div>
-
-            {/* Top Rated */}
-            <div className="mt-5">
-              <h1 className="text-white text-xl font-semibold">Top Rated</h1>
-
-              <Carousel
-                className="mt-5 grid"
-                plugins={[plugin.current]}
-                onMouseEnter={plugin.current.stop}
-                onMouseLeave={plugin.current.reset}
-              >
-                <CarouselContent className="-ml-8">
-                  {topRated.map((item, id) => (
-                    <CarouselItem
-                      key={id}
-                      className="md:basis-1/3 lg:basis-1/4 pl-8"
-                    >
-                      <RecommendedMovies
-                        img={item.backdrop_path}
-                        year={
-                          item.first_air_date
-                            ? new Date(item.first_air_date).getFullYear()
-                            : "N/A"
-                        }
-                        icon={<TVIcon />}
-                        type={"Movie"}
-                        adult={getCertification(item)}
-                        title={item.name || item.original_name}
-                      />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-[-16px]  top-[100px] bg-primary-col1 border-none text-white" />
-                <CarouselNext className="right-[-16px]  top-[100px] bg-primary-col1 border-none text-white" />
-              </Carousel>
-            </div>
-          </>
+          </div>
         )
       ) : (
-        // Search results
-        <div className="mt-5">
-          <h1 className="text-white text-xl font-semibold">
-            Found {searchResults.length} result
-            {searchResults.length !== 1 ? "s" : ""} for &lsquo;{query}&rsquo;
-          </h1>
+        <>
+          {/* Airing Today */}
+          <div className="mt-5">
+            <h1 className="text-white text-xl font-semibold">Airing Today</h1>
 
-          <div className="mt-5 grid grid-cols-4 gap-8">
-            {searchResults.map((item, id) => (
-              <RecommendedMovies
-                key={id}
-                img={item.backdrop_path}
-                year={
-                  item.first_air_date
-                    ? new Date(item.first_air_date).getFullYear()
-                    : "N/A"
-                }
-                icon={<TVIcon />}
-                type={"Movie"}
-                adult={getCertification(item)}
-                title={item.name || item.original_name}
-              />
-            ))}
+            <Carousel
+              className="mt-5"
+              plugins={[plugin.current]}
+              onMouseEnter={plugin.current.stop}
+              onMouseLeave={plugin.current.reset}
+            >
+              <CarouselContent className="-ml-8">
+                {airing.map((item, id) => (
+                  <CarouselItem
+                    key={id}
+                    className="md:basis-1/3 lg:basis-1/5 pl-8"
+                  >
+                    <TrendingMovieCard
+                      img={
+                        item.poster_path
+                          ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
+                          : noPoster
+                      }
+                      year={
+                        item.first_air_date
+                          ? new Date(item.first_air_date).getFullYear()
+                          : "N/A"
+                      }
+                      icon={<TVIcon />}
+                      type={"TV Series"}
+                      adult={getCertification(item)}
+                      title={item.name || item.original_name}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-[-16px] bg-primary-col1 border-none text-white" />
+              <CarouselNext className="right-[-16px] bg-primary-col1 border-none text-white" />
+            </Carousel>
           </div>
-        </div>
+
+          {/* On the Air */}
+          <div className="mt-5">
+            <h1 className="text-white text-xl font-semibold">On the Air</h1>
+
+            <Carousel
+              className="mt-5 grid"
+              plugins={[plugin.current]}
+              onMouseEnter={plugin.current.stop}
+              onMouseLeave={plugin.current.reset}
+            >
+              <CarouselContent className="-ml-8 relative">
+                {ontheAir.map((item, id) => (
+                  <CarouselItem
+                    key={id}
+                    className="md:basis-1/3 lg:basis-1/4 pl-8"
+                  >
+                    <RecommendedMovies
+                      img={item.backdrop_path}
+                      year={
+                        item.first_air_date
+                          ? new Date(item.first_air_date).getFullYear()
+                          : "N/A"
+                      }
+                      icon={<TVIcon />}
+                      type={"TV Series"}
+                      adult={getCertification(item)}
+                      title={item.name || item.original_name}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+              <CarouselNext className="right-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+            </Carousel>
+          </div>
+
+          {/* Popular */}
+          <div className="mt-5">
+            <h1 className="text-white text-xl font-semibold">Popular</h1>
+
+            <Carousel
+              className="mt-5 grid"
+              plugins={[plugin.current]}
+              onMouseEnter={plugin.current.stop}
+              onMouseLeave={plugin.current.reset}
+            >
+              <CarouselContent className="-ml-8">
+                {popular.map((item, id) => (
+                  <CarouselItem
+                    key={id}
+                    className="md:basis-1/3 lg:basis-1/4 pl-8"
+                  >
+                    <RecommendedMovies
+                      img={item.backdrop_path}
+                      year={
+                        item.first_air_date
+                          ? new Date(item.first_air_date).getFullYear()
+                          : "N/A"
+                      }
+                      icon={<TVIcon />}
+                      type={"TV Series"}
+                      adult={getCertification(item)}
+                      title={item.name || item.original_name}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+              <CarouselNext className="right-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+            </Carousel>
+          </div>
+
+          {/* Top Rated */}
+          <div className="mt-5">
+            <h1 className="text-white text-xl font-semibold">Top Rated</h1>
+
+            <Carousel
+              className="mt-5 grid"
+              plugins={[plugin.current]}
+              onMouseEnter={plugin.current.stop}
+              onMouseLeave={plugin.current.reset}
+            >
+              <CarouselContent className="-ml-8">
+                {topRated.map((item, id) => (
+                  <CarouselItem
+                    key={id}
+                    className="md:basis-1/3 lg:basis-1/4 pl-8"
+                  >
+                    <RecommendedMovies
+                      img={item.backdrop_path}
+                      year={
+                        item.first_air_date
+                          ? new Date(item.first_air_date).getFullYear()
+                          : "N/A"
+                      }
+                      icon={<TVIcon />}
+                      type={"TV Series"}
+                      adult={getCertification(item)}
+                      title={item.name || item.original_name}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+              <CarouselNext className="right-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+            </Carousel>
+          </div>
+        </>
       )}
     </div>
   );
