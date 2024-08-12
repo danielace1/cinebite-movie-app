@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import TrendingMovieCard from "@/components/TrendingMovieCard";
 import RecommendedMovies from "@/components/RecommendedMovies";
 import TVIcon from "@/components/Icons/TVShowIcon";
+import noPoster from "../../public/no-poster.jpeg";
 
 const TVShows = () => {
   const [airing, setAiring] = useState([]);
@@ -268,7 +269,11 @@ const TVShows = () => {
                       className="md:basis-1/3 lg:basis-1/5 pl-8"
                     >
                       <TrendingMovieCard
-                        img={`https://image.tmdb.org/t/p/w300${item.poster_path}`}
+                        img={
+                          item.poster_path
+                            ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
+                            : noPoster
+                        }
                         year={
                           item.first_air_date
                             ? new Date(item.first_air_date).getFullYear()

@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import TrendingMovieCard from "@/components/TrendingMovieCard";
 import RecommendedMovies from "@/components/RecommendedMovies";
 import MovieIcon from "@/components/Icons/MovieIcon";
+import { Link } from "react-router-dom";
 
 const MoviesList = () => {
   const [nowPlaying, setNowPlaying] = useState([]);
@@ -83,7 +84,7 @@ const MoviesList = () => {
         }
         const data = await response.json();
         setTopRated(data.results);
-        // console.log("Top Rated:", data);
+        console.log("Top Rated:", data);
       } catch (error) {
         console.error("Error fetching top rated movies:", error);
       }
@@ -276,18 +277,20 @@ const MoviesList = () => {
                       key={id}
                       className="md:basis-1/3 lg:basis-1/5 pl-8"
                     >
-                      <TrendingMovieCard
-                        img={`https://image.tmdb.org/t/p/w300${item.poster_path}`}
-                        year={
-                          item.release_date
-                            ? new Date(item.release_date).getFullYear()
-                            : "N/A"
-                        }
-                        icon={<MovieIcon />}
-                        type={"Movie"}
-                        adult={getCertification(item)}
-                        title={item.title || item.original_title}
-                      />
+                      <Link to={`${item.id}/details`}>
+                        <TrendingMovieCard
+                          img={`https://image.tmdb.org/t/p/w300${item.poster_path}`}
+                          year={
+                            item.release_date
+                              ? new Date(item.release_date).getFullYear()
+                              : "N/A"
+                          }
+                          icon={<MovieIcon />}
+                          type={"Movie"}
+                          adult={getCertification(item)}
+                          title={item.title || item.original_title}
+                        />
+                      </Link>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
@@ -312,18 +315,20 @@ const MoviesList = () => {
                       key={id}
                       className="md:basis-1/3 lg:basis-1/4 pl-8"
                     >
-                      <RecommendedMovies
-                        img={item.backdrop_path}
-                        year={
-                          item.release_date
-                            ? new Date(item.release_date).getFullYear()
-                            : "N/A"
-                        }
-                        icon={<MovieIcon />}
-                        type={"Movie"}
-                        adult={getCertification(item)}
-                        title={item.title || item.original_title}
-                      />
+                      <Link to={`${item.id}/details`}>
+                        <RecommendedMovies
+                          img={item.backdrop_path}
+                          year={
+                            item.release_date
+                              ? new Date(item.release_date).getFullYear()
+                              : "N/A"
+                          }
+                          icon={<MovieIcon />}
+                          type={"Movie"}
+                          adult={getCertification(item)}
+                          title={item.title || item.original_title}
+                        />
+                      </Link>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
@@ -348,18 +353,20 @@ const MoviesList = () => {
                       key={id}
                       className="md:basis-1/3 lg:basis-1/4 pl-8"
                     >
-                      <RecommendedMovies
-                        img={item.backdrop_path}
-                        year={
-                          item.release_date
-                            ? new Date(item.release_date).getFullYear()
-                            : "N/A"
-                        }
-                        icon={<MovieIcon />}
-                        type={"Movie"}
-                        adult={getCertification(item)}
-                        title={item.title || item.original_title}
-                      />
+                      <Link to={`${item.id}/details`}>
+                        <RecommendedMovies
+                          img={item.backdrop_path}
+                          year={
+                            item.release_date
+                              ? new Date(item.release_date).getFullYear()
+                              : "N/A"
+                          }
+                          icon={<MovieIcon />}
+                          type={"Movie"}
+                          adult={getCertification(item)}
+                          title={item.title || item.original_title}
+                        />
+                      </Link>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
@@ -384,18 +391,20 @@ const MoviesList = () => {
                       key={id}
                       className="md:basis-1/3 lg:basis-1/4 pl-8"
                     >
-                      <RecommendedMovies
-                        img={item.backdrop_path}
-                        year={
-                          item.release_date
-                            ? new Date(item.release_date).getFullYear()
-                            : "N/A"
-                        }
-                        icon={<MovieIcon />}
-                        type={"Movie"}
-                        adult={getCertification(item)}
-                        title={item.title || item.original_title}
-                      />
+                      <Link to={`${item.id}/details`}>
+                        <RecommendedMovies
+                          img={item.backdrop_path}
+                          year={
+                            item.release_date
+                              ? new Date(item.release_date).getFullYear()
+                              : "N/A"
+                          }
+                          icon={<MovieIcon />}
+                          type={"Movie"}
+                          adult={getCertification(item)}
+                          title={item.title || item.original_title}
+                        />
+                      </Link>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
@@ -415,19 +424,20 @@ const MoviesList = () => {
 
           <div className="mt-5 grid grid-cols-4 gap-8">
             {searchResults.map((item, id) => (
-              <RecommendedMovies
-                key={id}
-                img={item.backdrop_path}
-                year={
-                  item.release_date
-                    ? new Date(item.release_date).getFullYear()
-                    : "N/A"
-                }
-                icon={<MovieIcon />}
-                type={"Movie"}
-                adult={getCertification(item)}
-                title={item.title || item.original_title}
-              />
+              <Link key={id} to={`${item.id}/details`}>
+                <RecommendedMovies
+                  img={item.backdrop_path}
+                  year={
+                    item.release_date
+                      ? new Date(item.release_date).getFullYear()
+                      : "N/A"
+                  }
+                  icon={<MovieIcon />}
+                  type={"Movie"}
+                  adult={getCertification(item)}
+                  title={item.title || item.original_title}
+                />
+              </Link>
             ))}
           </div>
         </div>

@@ -30,7 +30,7 @@ const router = createBrowserRouter([
         element: <Dashboard />,
       },
       {
-        path: "movieslist",
+        path: "movies",
         element: <MoviesList />,
       },
       {
@@ -42,7 +42,7 @@ const router = createBrowserRouter([
         element: <Watchlist />,
       },
       {
-        path: "details",
+        path: "movies/:id/details",
         element: <DetailsPage />,
       },
     ],

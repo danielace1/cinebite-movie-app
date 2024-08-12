@@ -31,7 +31,7 @@ const Navbar = () => {
           </li>
           <li>
             <NavLink
-              to="/user/movieslist"
+              to="/user/movies"
               className="active-nav"
               aria-current="page"
             >
