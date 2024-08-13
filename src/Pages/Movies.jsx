@@ -13,6 +13,8 @@ import MovieIcon from "@/components/Icons/MovieIcon";
 import { Link } from "react-router-dom";
 
 const MoviesList = () => {
+  const [isloading, setIsLoading] = useState(true);
+
   const [nowPlaying, setNowPlaying] = useState([]);
   const [popular, setPopular] = useState([]);
   const [toprated, setTopRated] = useState([]);
@@ -70,6 +72,7 @@ const MoviesList = () => {
         setUpcoming(upcomingData.results);
         setNowPlaying(nowPlayingData.results);
         setPopular(popularData.results);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching movies:", error);
       }
@@ -217,97 +220,30 @@ const MoviesList = () => {
         </div>
       </div>
 
-      {query.length > 0 ? (
-        searchResults.length === 0 ? (
-          <div className="mt-5">
-            <h1 className="text-white text-xl font-semibold">
-              No Results found
-            </h1>
-          </div>
-        ) : (
-          <div className="mt-5">
-            <h1 className="text-white text-xl font-semibold">
-              Found {searchResults.length} result
-              {searchResults.length !== 1 ? "s" : ""} for &lsquo;{query}&rsquo;
-            </h1>
-
-            <div className="mt-5 grid grid-cols-4 gap-8">
-              {searchResults.map((item, id) => (
-                <Link key={id} to={`${item.id}/details`}>
-                  <RecommendedMovies
-                    img={item.backdrop_path}
-                    year={
-                      item.release_date
-                        ? new Date(item.release_date).getFullYear()
-                        : "N/A"
-                    }
-                    icon={<MovieIcon />}
-                    type={"Movie"}
-                    adult={getCertification(item)}
-                    title={item.title || item.original_title}
-                  />
-                </Link>
-              ))}
-            </div>
-          </div>
-        )
+      {isloading ? (
+        <div className="flex justify-center items-center h-screen">
+          <div className="border-gray-300 h-20 w-20 animate-spin rounded-full border-8 border-t-blue-900" />
+        </div>
       ) : (
         <>
-          {/* Now Playing */}
-          <div className="mt-5">
-            <h1 className="text-white text-xl font-semibold">Now Playing</h1>
+          {query.length > 0 ? (
+            searchResults.length === 0 ? (
+              <div className="mt-5">
+                <h1 className="text-white text-xl font-semibold">
+                  No Results found
+                </h1>
+              </div>
+            ) : (
+              <div className="mt-5">
+                <h1 className="text-white text-xl font-semibold">
+                  Found {searchResults.length} result
+                  {searchResults.length !== 1 ? "s" : ""} for &lsquo;{query}
+                  &rsquo;
+                </h1>
 
-            <Carousel
-              className="mt-5"
-              plugins={[plugin.current]}
-              onMouseEnter={plugin.current.stop}
-              onMouseLeave={plugin.current.reset}
-            >
-              <CarouselContent className="-ml-8">
-                {nowPlaying.map((item, id) => (
-                  <CarouselItem
-                    key={id}
-                    className="md:basis-1/3 lg:basis-1/5 pl-8"
-                  >
-                    <Link to={`${item.id}/details`}>
-                      <TrendingMovieCard
-                        img={`https://image.tmdb.org/t/p/w300${item.poster_path}`}
-                        year={
-                          item.release_date
-                            ? new Date(item.release_date).getFullYear()
-                            : "N/A"
-                        }
-                        icon={<MovieIcon />}
-                        type={"Movie"}
-                        adult={getCertification(item)}
-                        title={item.title || item.original_title}
-                      />
-                    </Link>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="left-[-16px] bg-primary-col1 border-none text-white" />
-              <CarouselNext className="right-[-16px] bg-primary-col1 border-none text-white" />
-            </Carousel>
-          </div>
-
-          {/* Popular */}
-          <div className="mt-5">
-            <h1 className="text-white text-xl font-semibold">Popular</h1>
-
-            <Carousel
-              className="mt-5 grid"
-              plugins={[plugin.current]}
-              onMouseEnter={plugin.current.stop}
-              onMouseLeave={plugin.current.reset}
-            >
-              <CarouselContent className="-ml-8 relative">
-                {popular.map((item, id) => (
-                  <CarouselItem
-                    key={id}
-                    className="md:basis-1/3 lg:basis-1/4 pl-8"
-                  >
-                    <Link to={`${item.id}/details`}>
+                <div className="mt-5 grid grid-cols-4 gap-8">
+                  {searchResults.map((item, id) => (
+                    <Link key={id} to={`${item.id}/details`}>
                       <RecommendedMovies
                         img={item.backdrop_path}
                         year={
@@ -321,89 +257,167 @@ const MoviesList = () => {
                         title={item.title || item.original_title}
                       />
                     </Link>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="left-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
-              <CarouselNext className="right-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
-            </Carousel>
-          </div>
+                  ))}
+                </div>
+              </div>
+            )
+          ) : (
+            <>
+              {/* Now Playing */}
+              <div className="mt-5">
+                <h1 className="text-white text-xl font-semibold">
+                  Now Playing
+                </h1>
 
-          {/* Top rated */}
-          <div className="mt-3">
-            <h1 className="text-white text-xl font-semibold">Top Rated</h1>
+                <Carousel
+                  className="mt-5"
+                  plugins={[plugin.current]}
+                  onMouseEnter={plugin.current.stop}
+                  onMouseLeave={plugin.current.reset}
+                >
+                  <CarouselContent className="-ml-8">
+                    {nowPlaying.map((item, id) => (
+                      <CarouselItem
+                        key={id}
+                        className="md:basis-1/3 lg:basis-1/5 pl-8"
+                      >
+                        <Link to={`${item.id}/details`}>
+                          <TrendingMovieCard
+                            img={`https://image.tmdb.org/t/p/w300${item.poster_path}`}
+                            year={
+                              item.release_date
+                                ? new Date(item.release_date).getFullYear()
+                                : "N/A"
+                            }
+                            icon={<MovieIcon />}
+                            type={"Movie"}
+                            adult={getCertification(item)}
+                            title={item.title || item.original_title}
+                          />
+                        </Link>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious className="left-[-16px] bg-primary-col1 border-none text-white" />
+                  <CarouselNext className="right-[-16px] bg-primary-col1 border-none text-white" />
+                </Carousel>
+              </div>
 
-            <Carousel
-              className="mt-5 grid"
-              plugins={[plugin.current]}
-              onMouseEnter={plugin.current.stop}
-              onMouseLeave={plugin.current.reset}
-            >
-              <CarouselContent className="-ml-8">
-                {toprated.map((item, id) => (
-                  <CarouselItem
-                    key={id}
-                    className="md:basis-1/3 lg:basis-1/4 pl-8"
-                  >
-                    <Link to={`${item.id}/details`}>
-                      <RecommendedMovies
-                        img={item.backdrop_path}
-                        year={
-                          item.release_date
-                            ? new Date(item.release_date).getFullYear()
-                            : "N/A"
-                        }
-                        icon={<MovieIcon />}
-                        type={"Movie"}
-                        adult={getCertification(item)}
-                        title={item.title || item.original_title}
-                      />
-                    </Link>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="left-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
-              <CarouselNext className="right-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
-            </Carousel>
-          </div>
+              {/* Popular */}
+              <div className="mt-5">
+                <h1 className="text-white text-xl font-semibold">Popular</h1>
 
-          {/* Upcoming */}
-          <div className="mt-3">
-            <h1 className="text-white text-xl font-semibold">Upcoming</h1>
+                <Carousel
+                  className="mt-5 grid"
+                  plugins={[plugin.current]}
+                  onMouseEnter={plugin.current.stop}
+                  onMouseLeave={plugin.current.reset}
+                >
+                  <CarouselContent className="-ml-8 relative">
+                    {popular.map((item, id) => (
+                      <CarouselItem
+                        key={id}
+                        className="md:basis-1/3 lg:basis-1/4 pl-8"
+                      >
+                        <Link to={`${item.id}/details`}>
+                          <RecommendedMovies
+                            img={item.backdrop_path}
+                            year={
+                              item.release_date
+                                ? new Date(item.release_date).getFullYear()
+                                : "N/A"
+                            }
+                            icon={<MovieIcon />}
+                            type={"Movie"}
+                            adult={getCertification(item)}
+                            title={item.title || item.original_title}
+                          />
+                        </Link>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious className="left-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+                  <CarouselNext className="right-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+                </Carousel>
+              </div>
 
-            <Carousel
-              className="mt-5 grid"
-              plugins={[plugin.current]}
-              onMouseEnter={plugin.current.stop}
-              onMouseLeave={plugin.current.reset}
-            >
-              <CarouselContent className="-ml-8">
-                {Upcoming.map((item, id) => (
-                  <CarouselItem
-                    key={id}
-                    className="md:basis-1/3 lg:basis-1/4 pl-8"
-                  >
-                    <Link to={`${item.id}/details`}>
-                      <RecommendedMovies
-                        img={item.backdrop_path}
-                        year={
-                          item.release_date
-                            ? new Date(item.release_date).getFullYear()
-                            : "N/A"
-                        }
-                        icon={<MovieIcon />}
-                        type={"Movie"}
-                        adult={getCertification(item)}
-                        title={item.title || item.original_title}
-                      />
-                    </Link>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="left-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
-              <CarouselNext className="right-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
-            </Carousel>
-          </div>
+              {/* Top rated */}
+              <div className="mt-3">
+                <h1 className="text-white text-xl font-semibold">Top Rated</h1>
+
+                <Carousel
+                  className="mt-5 grid"
+                  plugins={[plugin.current]}
+                  onMouseEnter={plugin.current.stop}
+                  onMouseLeave={plugin.current.reset}
+                >
+                  <CarouselContent className="-ml-8">
+                    {toprated.map((item, id) => (
+                      <CarouselItem
+                        key={id}
+                        className="md:basis-1/3 lg:basis-1/4 pl-8"
+                      >
+                        <Link to={`${item.id}/details`}>
+                          <RecommendedMovies
+                            img={item.backdrop_path}
+                            year={
+                              item.release_date
+                                ? new Date(item.release_date).getFullYear()
+                                : "N/A"
+                            }
+                            icon={<MovieIcon />}
+                            type={"Movie"}
+                            adult={getCertification(item)}
+                            title={item.title || item.original_title}
+                          />
+                        </Link>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious className="left-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+                  <CarouselNext className="right-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+                </Carousel>
+              </div>
+
+              {/* Upcoming */}
+              <div className="mt-3">
+                <h1 className="text-white text-xl font-semibold">Upcoming</h1>
+
+                <Carousel
+                  className="mt-5 grid"
+                  plugins={[plugin.current]}
+                  onMouseEnter={plugin.current.stop}
+                  onMouseLeave={plugin.current.reset}
+                >
+                  <CarouselContent className="-ml-8">
+                    {Upcoming.map((item, id) => (
+                      <CarouselItem
+                        key={id}
+                        className="md:basis-1/3 lg:basis-1/4 pl-8"
+                      >
+                        <Link to={`${item.id}/details`}>
+                          <RecommendedMovies
+                            img={item.backdrop_path}
+                            year={
+                              item.release_date
+                                ? new Date(item.release_date).getFullYear()
+                                : "N/A"
+                            }
+                            icon={<MovieIcon />}
+                            type={"Movie"}
+                            adult={getCertification(item)}
+                            title={item.title || item.original_title}
+                          />
+                        </Link>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious className="left-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+                  <CarouselNext className="right-[-16px] top-[100px] bg-primary-col1 border-none text-white" />
+                </Carousel>
+              </div>
+            </>
+          )}
         </>
       )}
     </div>

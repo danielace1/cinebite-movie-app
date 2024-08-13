@@ -15,6 +15,8 @@ import MovieIcon from "@/components/Icons/MovieIcon";
 import TVIcon from "@/components/Icons/TVShowIcon";
 
 const Dashboard = () => {
+  const [isloading, setIsLoading] = useState(true);
+
   const [trending, setTrending] = useState([]);
   const [recommended, setRecommended] = useState([]);
   const [movieId, setMovieId] = useState([]);
