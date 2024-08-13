@@ -209,6 +209,7 @@ const TVShows = () => {
         </div>
       </div>
 
+
       {query.length > 0 ? (
         searchResults.length === 0 ? (
           <div className="mt-5">
