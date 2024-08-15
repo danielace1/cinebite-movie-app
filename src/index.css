@@ -80,3 +80,8 @@ body {
 .active-nav.active {
   @apply text-white;
 }
+
+/* Custom styling for the close button */
+.modal-video-close-btn {
+  @apply !w-7 !h-7 !-top-4 !right-[-25px] cursor-pointer transition-all;
+}

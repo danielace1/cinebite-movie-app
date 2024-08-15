@@ -13,7 +13,7 @@ import MovieIcon from "@/components/Icons/MovieIcon";
 import { Link } from "react-router-dom";
 
 const MoviesList = () => {
-  const [isloading, setIsLoading] = useState(true);
+  const [isloading, setIsLoading] = useState(false);
 
   const [nowPlaying, setNowPlaying] = useState([]);
   const [popular, setPopular] = useState([]);
@@ -222,7 +222,7 @@ const MoviesList = () => {
 
       {isloading ? (
         <div className="flex justify-center items-center h-screen">
-          <div className="border-gray-300 h-20 w-20 animate-spin rounded-full border-8 border-t-blue-900" />
+          <div className="w-10 h-10 border-4 border-white rounded-full animate-spin border-t-transparent" />
         </div>
       ) : (
         <>
