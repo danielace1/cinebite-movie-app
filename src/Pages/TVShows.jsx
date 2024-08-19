@@ -74,6 +74,8 @@ const TVShows = () => {
         setPopular(popularData.results);
         setTopRated(topRatedData.results);
         setIsLoading(false);
+
+        console.log(airingTodayData, onTheAirData, popularData, topRatedData);
       } catch (error) {
         console.error("Error fetching TV shows:", error);
       }
@@ -273,22 +275,24 @@ const TVShows = () => {
                         key={id}
                         className="md:basis-1/3 lg:basis-1/5 pl-8"
                       >
-                        <TrendingMovieCard
-                          img={
-                            item.poster_path
-                              ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
-                              : noPoster
-                          }
-                          year={
-                            item.first_air_date
-                              ? new Date(item.first_air_date).getFullYear()
-                              : "N/A"
-                          }
-                          icon={<TVIcon />}
-                          type={"TV Series"}
-                          adult={getCertification(item)}
-                          title={item.name || item.original_name}
-                        />
+                        <Link to={`${item.id}/details`}>
+                          <TrendingMovieCard
+                            img={
+                              item.poster_path
+                                ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
+                                : noPoster
+                            }
+                            year={
+                              item.first_air_date
+                                ? new Date(item.first_air_date).getFullYear()
+                                : "N/A"
+                            }
+                            icon={<TVIcon />}
+                            type={"TV Series"}
+                            adult={getCertification(item)}
+                            title={item.name || item.original_name}
+                          />
+                        </Link>
                       </CarouselItem>
                     ))}
                   </CarouselContent>
@@ -313,18 +317,20 @@ const TVShows = () => {
                         key={id}
                         className="md:basis-1/3 lg:basis-1/4 pl-8"
                       >
-                        <RecommendedMovies
-                          img={item.backdrop_path}
-                          year={
-                            item.first_air_date
-                              ? new Date(item.first_air_date).getFullYear()
-                              : "N/A"
-                          }
-                          icon={<TVIcon />}
-                          type={"TV Series"}
-                          adult={getCertification(item)}
-                          title={item.name || item.original_name}
-                        />
+                        <Link to={`${item.id}/details`}>
+                          <RecommendedMovies
+                            img={item.backdrop_path}
+                            year={
+                              item.first_air_date
+                                ? new Date(item.first_air_date).getFullYear()
+                                : "N/A"
+                            }
+                            icon={<TVIcon />}
+                            type={"TV Series"}
+                            adult={getCertification(item)}
+                            title={item.name || item.original_name}
+                          />
+                        </Link>
                       </CarouselItem>
                     ))}
                   </CarouselContent>
@@ -349,18 +355,20 @@ const TVShows = () => {
                         key={id}
                         className="md:basis-1/3 lg:basis-1/4 pl-8"
                       >
-                        <RecommendedMovies
-                          img={item.backdrop_path}
-                          year={
-                            item.first_air_date
-                              ? new Date(item.first_air_date).getFullYear()
-                              : "N/A"
-                          }
-                          icon={<TVIcon />}
-                          type={"TV Series"}
-                          adult={getCertification(item)}
-                          title={item.name || item.original_name}
-                        />
+                        <Link to={`${item.id}/details`}>
+                          <RecommendedMovies
+                            img={item.backdrop_path}
+                            year={
+                              item.first_air_date
+                                ? new Date(item.first_air_date).getFullYear()
+                                : "N/A"
+                            }
+                            icon={<TVIcon />}
+                            type={"TV Series"}
+                            adult={getCertification(item)}
+                            title={item.name || item.original_name}
+                          />
+                        </Link>
                       </CarouselItem>
                     ))}
                   </CarouselContent>
@@ -385,18 +393,20 @@ const TVShows = () => {
                         key={id}
                         className="md:basis-1/3 lg:basis-1/4 pl-8"
                       >
-                        <RecommendedMovies
-                          img={item.backdrop_path}
-                          year={
-                            item.first_air_date
-                              ? new Date(item.first_air_date).getFullYear()
-                              : "N/A"
-                          }
-                          icon={<TVIcon />}
-                          type={"TV Series"}
-                          adult={getCertification(item)}
-                          title={item.name || item.original_name}
-                        />
+                        <Link to={`${item.id}/details`}>
+                          <RecommendedMovies
+                            img={item.backdrop_path}
+                            year={
+                              item.first_air_date
+                                ? new Date(item.first_air_date).getFullYear()
+                                : "N/A"
+                            }
+                            icon={<TVIcon />}
+                            type={"TV Series"}
+                            adult={getCertification(item)}
+                            title={item.name || item.original_name}
+                          />
+                        </Link>
                       </CarouselItem>
                     ))}
                   </CarouselContent>

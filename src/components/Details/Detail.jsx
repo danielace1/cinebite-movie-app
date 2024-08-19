@@ -69,13 +69,17 @@ const Detail = ({
       <div className={`w-8/12 mt-5 ${textColor}`}>
         <div>
           <h1 className="font-bold text-3xl mb-1">
-            {details?.title}{" "}
+            {details?.title || details?.original_name}{" "}
             <span
               className={`${
                 textColor === "text-white" ? "text-gray-200" : "black"
               } text-2xl font-semibold`}
             >
-              ({new Date(details?.release_date).getFullYear()})
+              (
+              {new Date(
+                details?.release_date || details?.first_air_date
+              ).getFullYear()}
+              )
             </span>
           </h1>
           <div
@@ -97,29 +101,38 @@ const Detail = ({
                 &nbsp;&nbsp;
               </>
             )}
-            <span>
-              {new Date(
-                certifications?.release_date || details?.release_date
-              ).toLocaleDateString()}
-            </span>
-            &nbsp;({certifications?.region || details?.origin_country}
-            )&nbsp;&nbsp;
-            <span
-              className={`w-1 h-1 rounded-full ${
-                textColor === "text-white" ? "bg-gray-200" : "bg-black"
-              }`}
-            ></span>
-            &nbsp;&nbsp;{genre.map((g) => g.name).join(", ")}&nbsp;&nbsp;
-            {formattedtime && (
+            {details?.first_air_date ? (
+              ""
+            ) : (
               <>
+                <span>
+                  {new Date(
+                    certifications?.release_date || details?.release_date
+                  ).toLocaleDateString()}
+                </span>
+                &nbsp;({certifications?.region || details?.origin_country}
+                )&nbsp;&nbsp;
                 <span
                   className={`w-1 h-1 rounded-full ${
                     textColor === "text-white" ? "bg-gray-200" : "bg-black"
                   }`}
                 ></span>
-                &nbsp;&nbsp;{formattedtime}
+                &nbsp;&nbsp;
               </>
             )}
+            {genre.map((g) => g.name).join(", ")}&nbsp;&nbsp;
+            {details?.first_air_date
+              ? ""
+              : formattedtime && (
+                  <>
+                    <span
+                      className={`w-1 h-1 rounded-full ${
+                        textColor === "text-white" ? "bg-gray-200" : "bg-black"
+                      }`}
+                    ></span>
+                    &nbsp;&nbsp;{formattedtime}
+                  </>
+                )}
           </div>
         </div>
 

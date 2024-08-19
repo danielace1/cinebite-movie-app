@@ -1,5 +1,3 @@
-// APi key 96941e4c3f214ae74c41fc04465d5392
-
 import { useEffect, useRef, useState } from "react";
 import {
   Carousel,

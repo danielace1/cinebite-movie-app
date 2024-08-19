@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import ColorThief from "colorthief";
@@ -6,14 +6,14 @@ import tinycolor from "tinycolor2";
 import ModalVideo from "react-modal-video";
 import "react-modal-video/css/modal-video.css";
 
+import { API_BASE_URL, API_KEY } from "@/api/apiConfig";
 import Detail from "@/components/Details/Detail";
 import CastandStatus from "@/components/Details/CastandStatus";
 import Reviews from "@/components/Details/Reviews";
 import Media from "@/components/Details/Media";
 import Recommendations from "@/components/Details/Recommendations";
-import { API_BASE_URL, API_KEY } from "@/api/apiConfig";
 
-const DetailsPage = () => {
+const MovieDetails = () => {
   const { id } = useParams();
 
   const [isloading, setIsLoading] = useState(false);
@@ -30,7 +30,7 @@ const DetailsPage = () => {
   const [recommendations, setRecommendations] = useState([]);
 
   const [percentage, setPercentage] = useState("");
-  const [formattedtime, setFormattedtime] = useState("");
+  const [formattedTime, setFormattedtime] = useState("");
   const [overlayStyle, setOverlayStyle] = useState("");
   const [textColor, setTextColor] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -135,17 +135,6 @@ const DetailsPage = () => {
         setPosters(backdropsData.posters);
         setRecommendations(recommendationsData.results);
         setTrailer(teaser);
-        setIsLoading(false);
-
-        // console.log(watchProvidersData.results.IN);
-        // console.log(certificationsData);
-        // console.log(credit.cast);
-        // console.log(reviewsData.results);
-        // console.log(videosData.results);
-        // console.log(backdropsData);
-        // console.log(recommendationsData.results);
-        // console.log(teaser);
-        // console.log(recommendationsData);
 
         // Calculate the percentage
         const voteAverage = data.vote_average;
@@ -180,6 +169,7 @@ const DetailsPage = () => {
           setTextColor(isLight ? "text-black" : "text-white");
         };
 
+        // Certifications for the movie
         const certs = certificationsData.results;
         const priorityOrder = ["IN", "US", "GB"];
         let highestPriorityCert = null;
@@ -213,21 +203,22 @@ const DetailsPage = () => {
           const minutes = totalMinutes % 60;
 
           const formattedRuntime = `${hours}h ${minutes}m`;
-
           setFormattedtime(formattedRuntime);
         } else {
           setFormattedtime("");
         }
+
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching movie details:", error);
       }
     }
 
     fetchDetails();
-  }, [id, API_KEY]);
+  }, [id]);
 
   return (
-    <div className="mt-10 mx-5 w-full ">
+    <div className="mt-10 mx-5 w-full">
       {isloading ? (
         <div className="flex justify-center items-center h-screen">
           <div className="w-10 h-10 border-4 border-white rounded-full animate-spin border-t-transparent" />
@@ -257,7 +248,7 @@ const DetailsPage = () => {
               textColor={textColor}
               certifications={certifications}
               genre={genre}
-              formattedTime={formattedtime}
+              formattedtime={formattedTime}
               percentage={percentage}
               circumference={circumference}
               offset={offset}
@@ -312,4 +303,4 @@ const DetailsPage = () => {
   );
 };
 
-export default DetailsPage;
+export default MovieDetails;
