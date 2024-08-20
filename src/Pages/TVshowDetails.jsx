@@ -3,9 +3,12 @@ import { useEffect, useState } from "react";
 
 import ColorThief from "colorthief";
 import tinycolor from "tinycolor2";
+import ModalVideo from "react-modal-video";
+import "react-modal-video/css/modal-video.css";
 
 import { API_BASE_URL, API_KEY } from "@/api/apiConfig";
 import Detail from "@/components/Details/Detail";
+import CastandStatus from "@/components/Details/CastandStatus";
 
 const TVshowDetails = () => {
   const { id } = useParams();
@@ -15,10 +18,25 @@ const TVshowDetails = () => {
   const [certifications, setCertifications] = useState("");
   const [genre, setGenre] = useState([]);
   const [credits, setCredits] = useState([]);
+  const [videos, setVideos] = useState([]);
 
   const [percentage, setPercentage] = useState("");
   const [overlayStyle, setOverlayStyle] = useState("");
   const [textColor, setTextColor] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [videoKey, setVideoKey] = useState([]);
+  const [currentVideoKey, setCurrentVideoKey] = useState(null);
+  const [trailer, setTrailer] = useState([]);
+
+  // open and close the video modal
+  const openModal = (key) => {
+    setCurrentVideoKey(key);
+    setIsOpen(true);
+  };
+  const closeModal = () => {
+    setIsOpen(false);
+    setCurrentVideoKey(null);
+  };
 
   // Calculating percentage for circular progress
   const radius = 16;
@@ -59,10 +77,16 @@ const TVshowDetails = () => {
         `${API_BASE_URL}/tv/${id}/credits?api_key=${API_KEY}`
       );
 
+      // Fetch movie videos
+      const videosResponse = await fetch(
+        `${API_BASE_URL}/tv/${id}/videos?api_key=${API_KEY}`
+      );
+
       const data = await response.json();
       const watchProvidersData = await WatchProviders.json();
       const certificationData = await certificationsResponse.json();
       const creditsData = await creditsResponse.json();
+      const videosData = await videosResponse.json();
 
       // Combine cast and crew into one array
       const combinedCredits = [...creditsData.cast, ...creditsData.crew];
@@ -71,6 +95,8 @@ const TVshowDetails = () => {
       setWatchProviders(watchProvidersData.results.IN);
       setGenre(data.genres);
       setCredits(combinedCredits);
+      setVideos(videosData.results);
+      console.log(videosData.results);
 
       // Calculate the percentage
       const voteAverage = data.vote_average;
@@ -169,9 +195,27 @@ const TVshowDetails = () => {
           percentage={percentage}
           circumference={circumference}
           offset={offset}
+          openModal={openModal}
           pages={pages}
         />
       </div>
+
+      <div className="mt-20">
+        <h1 className="text-2xl text-white font-semibold">Top Billed Cast</h1>
+
+        {/* Cast and Status */}
+        <CastandStatus details={details} credits={credits} />
+      </div>
+
+      {/* Modal Video */}
+      <ModalVideo
+        channel="youtube"
+        isOpen={isOpen}
+        videoId={currentVideoKey}
+        onClose={closeModal}
+        allowFullScreen
+        animationSpeed={300}
+      />
     </div>
   );
 };

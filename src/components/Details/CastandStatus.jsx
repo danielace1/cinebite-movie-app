@@ -56,6 +56,28 @@ const CastandStatus = ({ details, credits }) => {
           <h1 className="font-semibold">Status</h1>
           <h2>{details?.status ? details?.status : "--"}</h2>
         </div>
+
+        {!details?.runtime ? (
+          <>
+            <div className="text-white text-lg">
+              <h1 className="font-semibold mb-3">Network</h1>
+
+              <img
+                src={`https://image.tmdb.org/t/p/w92${details?.networks[0].logo_path}`}
+                alt={details?.networks[0].name}
+                className="bg-white p-2 rounded-lg"
+              />
+            </div>
+            <div className="text-white text-lg">
+              <h1 className="font-semibold">Type</h1>
+
+              <h2>{details?.type}</h2>
+            </div>
+          </>
+        ) : (
+          "--"
+        )}
+
         <div className="text-white">
           <h1 className="font-semibold">Original Language</h1>
           <h2>
@@ -64,28 +86,35 @@ const CastandStatus = ({ details, credits }) => {
               : "--"}
           </h2>
         </div>
-        <div className="text-white">
-          <h1 className="font-semibold">Budget</h1>
-          <h2>
-            {details?.budget
-              ? new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                }).format(details.budget)
-              : "--"}
-          </h2>
-        </div>
-        <div className="text-white">
-          <h1 className="font-semibold">Revenue</h1>
-          <h2>
-            {details?.revenue
-              ? new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                }).format(details.revenue)
-              : "--"}
-          </h2>
-        </div>
+
+        {details?.runtime ? (
+          <>
+            <div className="text-white">
+              <h1 className="font-semibold">Budget</h1>
+              <h2>
+                {details?.budget
+                  ? new Intl.NumberFormat("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                    }).format(details.budget)
+                  : "--"}
+              </h2>
+            </div>
+            <div className="text-white">
+              <h1 className="font-semibold">Revenue</h1>
+              <h2>
+                {details?.revenue
+                  ? new Intl.NumberFormat("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                    }).format(details.revenue)
+                  : "--"}
+              </h2>
+            </div>
+          </>
+        ) : (
+          ""
+        )}
       </div>
     </div>
   );
