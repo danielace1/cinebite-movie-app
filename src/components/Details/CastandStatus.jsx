@@ -23,8 +23,8 @@ const CastandStatus = ({ details, credits }) => {
         {/* Actor Cards */}
         <Carousel className="mt-5 grid grid-cols-1" plugins={[plugin.current]}>
           <CarouselContent className="">
-            {credits.map((credit) => (
-              <CarouselItem className="lg:basis-1/6" key={credit.cast_id}>
+            {credits.map((credit, id) => (
+              <CarouselItem className="lg:basis-1/6" key={credit.cast_id || id}>
                 <div className="">
                   <img
                     src={

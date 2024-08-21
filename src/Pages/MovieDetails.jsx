@@ -100,12 +100,12 @@ const MovieDetails = () => {
 
         // Fetch the backdrops & posters
         const backdropsResponse = await fetch(
-          `https://api.themoviedb.org/3/movie/${id}/images?api_key=${API_KEY}`
+          `${API_BASE_URL}/movie/${id}/images?api_key=${API_KEY}`
         );
 
         // Fetch the Recommendations
         const recommendationsResponse = await fetch(
-          `https://api.themoviedb.org/3/movie/${id}/recommendations?api_key=${API_KEY}&language=en-US&page=1`
+          `${API_BASE_URL}/movie/${id}/recommendations?api_key=${API_KEY}&language=en-US&page=1`
         );
 
         const data = await response.json();
@@ -283,6 +283,7 @@ const MovieDetails = () => {
             {/* Modal Video */}
             <ModalVideo
               channel="youtube"
+              autoplay={1}
               isOpen={isOpen}
               videoId={currentVideoKey}
               onClose={closeModal}

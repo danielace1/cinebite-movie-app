@@ -34,12 +34,20 @@ const Recommendations = ({ recommendations }) => {
         <CarouselContent className="-ml-3 relative">
           {recommendations.map((item, id) => (
             <CarouselItem key={id} className="md:basis-1/3 lg:basis-1/4 pl-3">
-              <Link to={`/user/movies/${item.id}/details`}>
+              <Link
+                to={
+                  item.media_type == "movie"
+                    ? `/user/movies/${item.id}/details`
+                    : `/user/TVshows/${item.id}/details`
+                }
+              >
                 <RecommendedMovies
                   img={item.backdrop_path}
                   year={
-                    item.release_date
-                      ? new Date(item.release_date).getFullYear()
+                    item.release_date || item.first_air_date
+                      ? new Date(
+                          item.release_date || item.first_air_date
+                        ).getFullYear()
                       : "N/A"
                   }
                   icon={
@@ -55,7 +63,9 @@ const Recommendations = ({ recommendations }) => {
                   }
                   type={`${Math.floor((item.vote_average / 10) * 100)}%`}
                   adult={""}
-                  title={item.title || item.original_title}
+                  title={
+                    item.title || item.original_title || item.original_name
+                  }
                 />
               </Link>
             </CarouselItem>

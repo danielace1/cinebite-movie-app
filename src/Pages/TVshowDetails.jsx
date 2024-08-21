@@ -9,6 +9,8 @@ import "react-modal-video/css/modal-video.css";
 import { API_BASE_URL, API_KEY } from "@/api/apiConfig";
 import Detail from "@/components/Details/Detail";
 import CastandStatus from "@/components/Details/CastandStatus";
+import Media from "@/components/Details/Media";
+import Recommendations from "@/components/Details/Recommendations";
 
 const TVshowDetails = () => {
   const { id } = useParams();
@@ -19,6 +21,9 @@ const TVshowDetails = () => {
   const [genre, setGenre] = useState([]);
   const [credits, setCredits] = useState([]);
   const [videos, setVideos] = useState([]);
+  const [backdrops, setBackdrops] = useState([]);
+  const [posters, setPosters] = useState([]);
+  const [recommendations, setRecommendations] = useState([]);
 
   const [percentage, setPercentage] = useState("");
   const [overlayStyle, setOverlayStyle] = useState("");
@@ -82,11 +87,25 @@ const TVshowDetails = () => {
         `${API_BASE_URL}/tv/${id}/videos?api_key=${API_KEY}`
       );
 
+      // Fetch the backdrops & posters
+      const backdropsResponse = await fetch(
+        `${API_BASE_URL}/tv/${id}/images?api_key=${API_KEY}`
+      );
+
+      // Fetch the Recommendations
+      const recommendationsResponse = await fetch(
+        `${API_BASE_URL}/tv/${id}/recommendations?api_key=${API_KEY}&language=en-US&page=1`
+      );
+
       const data = await response.json();
       const watchProvidersData = await WatchProviders.json();
       const certificationData = await certificationsResponse.json();
       const creditsData = await creditsResponse.json();
+
       const videosData = await videosResponse.json();
+      const keys = videosData.results.map((video) => video.key);
+      const backdropsData = await backdropsResponse.json();
+      const recommendationsData = await recommendationsResponse.json();
 
       // Combine cast and crew into one array
       const combinedCredits = [...creditsData.cast, ...creditsData.crew];
@@ -95,7 +114,13 @@ const TVshowDetails = () => {
       setWatchProviders(watchProvidersData.results.IN);
       setGenre(data.genres);
       setCredits(combinedCredits);
+
       setVideos(videosData.results);
+      setVideoKey(keys);
+      setBackdrops(backdropsData.backdrops);
+      setPosters(backdropsData.posters);
+      setRecommendations(recommendationsData.results);
+
       console.log(videosData.results);
 
       // Calculate the percentage
@@ -205,17 +230,37 @@ const TVshowDetails = () => {
 
         {/* Cast and Status */}
         <CastandStatus details={details} credits={credits} />
+
+        {/* Tabs for Media */}
+        <Media
+          videos={videos}
+          backdrops={backdrops}
+          posters={posters}
+          openModal={openModal}
+          currentVideoKey={currentVideoKey}
+          isOpenModal={isOpen}
+          closeModal={closeModal}
+        />
       </div>
 
       {/* Modal Video */}
       <ModalVideo
         channel="youtube"
+        autoplay={1}
         isOpen={isOpen}
         videoId={currentVideoKey}
         onClose={closeModal}
         allowFullScreen
+        disablePictureInPicture
         animationSpeed={300}
       />
+
+      {/* Recommendations */}
+      {recommendations.length > 0 ? (
+        <Recommendations recommendations={recommendations} />
+      ) : (
+        ""
+      )}
     </div>
   );
 };
