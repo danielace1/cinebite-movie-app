@@ -210,21 +210,23 @@ const Detail = ({
               <path d="m12 16.923l-3.738 1.608q-.808.348-1.535-.134Q6 17.916 6 17.052V5.616q0-.691.463-1.153T7.616 4h8.769q.69 0 1.153.463T18 5.616v11.436q0 .864-.727 1.345q-.727.482-1.535.134z"></path>
             </svg>
           </div>
-          <div
-            className="flex items-center justify-center font-bold bg-sky-900 text-white px-3 py-2 rounded-lg hover:cursor-pointer transition-all hover:bg-sky-950"
-            onClick={() => openModal(trailer[0]?.key)}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              className="fill-current text-white mr-1"
+          {trailer.length > 0 && (
+            <div
+              className="flex items-center justify-center font-bold bg-sky-900 text-white px-3 py-2 rounded-lg hover:cursor-pointer transition-all hover:bg-sky-950"
+              onClick={() => openModal(trailer[0]?.key)}
             >
-              <path d="M8 17.175V6.825q0-.425.3-.713t.7-.287q.125 0 .263.037t.262.113l8.15 5.175q.225.15.338.375t.112.475t-.112.475t-.338.375l-8.15 5.175q-.125.075-.262.113T9 18.175q-.4 0-.7-.288t-.3-.712"></path>
-            </svg>
-            Play Trailer
-          </div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                className="fill-current text-white mr-1"
+              >
+                <path d="M8 17.175V6.825q0-.425.3-.713t.7-.287q.125 0 .263.037t.262.113l8.15 5.175q.225.15.338.375t.112.475t-.112.475t-.338.375l-8.15 5.175q-.125.075-.262.113T9 18.175q-.4 0-.7-.288t-.3-.712"></path>
+              </svg>
+              Play Trailer
+            </div>
+          )}
         </div>
 
         <div className="mt-10">
