@@ -21,7 +21,6 @@ const TVshowDetails = () => {
   const [certifications, setCertifications] = useState("");
   const [genre, setGenre] = useState([]);
   const [credits, setCredits] = useState([]);
-  const [currentSeason, setCurrentSeason] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [videos, setVideos] = useState([]);
   const [backdrops, setBackdrops] = useState([]);
@@ -32,6 +31,7 @@ const TVshowDetails = () => {
   const [overlayStyle, setOverlayStyle] = useState("");
   const [textColor, setTextColor] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [currentSeason, setCurrentSeason] = useState("");
   const [videoKey, setVideoKey] = useState([]);
   const [currentVideoKey, setCurrentVideoKey] = useState(null);
   const [trailer, setTrailer] = useState([]);
@@ -85,11 +85,6 @@ const TVshowDetails = () => {
         `${API_BASE_URL}/tv/${id}/credits?api_key=${API_KEY}`
       );
 
-      // Fetch current season
-      const currentSeasonResponse = await fetch(
-        `${API_BASE_URL}/tv/${id}/season/${currentSeason}?api_key=${API_KEY}`
-      );
-
       // Fetch reviews
       const reviewsResponse = await fetch(
         `${API_BASE_URL}/tv/${id}/reviews?api_key=${API_KEY}&language=en-IN`
@@ -114,7 +109,6 @@ const TVshowDetails = () => {
       const watchProvidersData = await WatchProviders.json();
       const certificationData = await certificationsResponse.json();
       const creditsData = await creditsResponse.json();
-      const currentSeasonData = await currentSeasonResponse.json();
       const reviewsData = await reviewsResponse.json();
       const videosData = await videosResponse.json();
       const keys = videosData.results.map((video) => video.key);
@@ -134,6 +128,7 @@ const TVshowDetails = () => {
       setDetails(data);
       setWatchProviders(watchProvidersData.results.IN);
       setGenre(data.genres);
+      // setCurrentSeason(data.)
       setCredits(combinedCredits);
       setReviews(reviewsData.results);
       setVideos(videosData.results);
@@ -142,8 +137,6 @@ const TVshowDetails = () => {
       setPosters(backdropsData.posters);
       setRecommendations(recommendationsData.results);
       setTrailer(teaser);
-
-      console.log(currentSeason);
 
       // Calculate the percentage
       const voteAverage = data.vote_average;
