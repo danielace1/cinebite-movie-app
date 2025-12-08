@@ -6,7 +6,7 @@ import tinycolor from "tinycolor2";
 import ModalVideo from "react-modal-video";
 import "react-modal-video/css/modal-video.css";
 
-import { API_BASE_URL, API_KEY } from "@/api/apiConfig";
+// import { API_BASE_URL, API_KEY } from "@/api/apiConfig";
 import Detail from "@/components/Details/Detail";
 import CastandStatus from "@/components/Details/CastandStatus";
 import Media from "@/components/Details/Media";

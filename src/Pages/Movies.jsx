@@ -8,7 +8,7 @@ import {
 import Autoplay from "embla-carousel-autoplay";
 import { useEffect, useRef, useState } from "react";
 import TrendingMovieCard from "@/components/TrendingMovieCard";
-import RecommendedMovies from "@/components/RecommendedMovies";
+import RecommendedMovies from "@/components/MediaCard";
 import MovieIcon from "@/components/Icons/MovieIcon";
 import { Link } from "react-router-dom";
 

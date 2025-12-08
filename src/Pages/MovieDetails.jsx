@@ -6,7 +6,7 @@ import tinycolor from "tinycolor2";
 import ModalVideo from "react-modal-video";
 import "react-modal-video/css/modal-video.css";
 
-import { API_BASE_URL, API_KEY } from "@/api/apiConfig";
+// import { API_BASE_URL, API_KEY } from "@/api/apiConfig";
 import Detail from "@/components/Details/Detail";
 import CastandStatus from "@/components/Details/CastandStatus";
 import Reviews from "@/components/Details/Reviews";
@@ -69,43 +69,41 @@ const MovieDetails = () => {
     async function fetchDetails() {
       try {
         // Fetch movie details
-        const response = await fetch(
-          `${API_BASE_URL}/movie/${id}?api_key=${API_KEY}`
-        );
+        const response = await fetch(`/movie/${id}?api_key=${API_KEY}`);
 
         // Fetch watch providers
         const WatchProviders = await fetch(
-          `${API_BASE_URL}/movie/${id}/watch/providers?api_key=${API_KEY}`
+          `/movie/${id}/watch/providers?api_key=${API_KEY}`
         );
 
         // Fetch movie certifications
         const certificationsResponse = await fetch(
-          `${API_BASE_URL}/movie/${id}/release_dates?api_key=${API_KEY}`
+          `/movie/${id}/release_dates?api_key=${API_KEY}`
         );
 
         // Fetch movie credits
         const creditsResponse = await fetch(
-          `${API_BASE_URL}/movie/${id}/credits?api_key=${API_KEY}`
+          `/movie/${id}/credits?api_key=${API_KEY}`
         );
 
         // Fetch reviews
         const reviewsResponse = await fetch(
-          `${API_BASE_URL}/movie/${id}/reviews?api_key=${API_KEY}&language=en-IN`
+          `/movie/${id}/reviews?api_key=${API_KEY}&language=en-IN`
         );
 
         // Fetch movie videos
         const videosResponse = await fetch(
-          `${API_BASE_URL}/movie/${id}/videos?api_key=${API_KEY}`
+          `/movie/${id}/videos?api_key=${API_KEY}`
         );
 
         // Fetch the backdrops & posters
         const backdropsResponse = await fetch(
-          `${API_BASE_URL}/movie/${id}/images?api_key=${API_KEY}`
+          `/movie/${id}/images?api_key=${API_KEY}`
         );
 
         // Fetch the Recommendations
         const recommendationsResponse = await fetch(
-          `${API_BASE_URL}/movie/${id}/recommendations?api_key=${API_KEY}&language=en-US&page=1`
+          `/movie/${id}/recommendations?api_key=${API_KEY}&language=en-US&page=1`
         );
 
         const data = await response.json();

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { Link } from "react-router-dom";
-import RecommendedMovies from "../RecommendedMovies";
+import RecommendedMovies from "../MediaCard";
 
 const Recommendations = ({ recommendations }) => {
   const plugin = useRef(
