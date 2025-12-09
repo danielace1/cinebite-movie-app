@@ -53,6 +53,7 @@ const Dashboard = () => {
   return (
     <div className="mt-4 mx-5">
       <SearchBar
+        placeholder="Search for movies or TV shows..."
         onSearch={(val) => setSearchQuery(val)}
         suggestions={searchRes.data || []}
       />

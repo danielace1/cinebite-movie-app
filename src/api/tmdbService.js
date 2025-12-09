@@ -55,11 +55,29 @@ export const getAiringToday = async () => {
   return normalize(data.results, "tv");
 };
 
+export const getOnTheAirTV = async () => {
+  const { data } = await tmdbApi.get("/tv/on_the_air", {
+    params: { region: "IN" },
+  });
+
+  return normalize(data.results, "tv");
+};
+
+export const searchTVShows = async (query) => {
+  if (!query.trim()) return [];
+  const { data } = await tmdbApi.get("/search/tv", {
+    params: { query, region: "IN" },
+  });
+  return normalize(data.results, "tv");
+};
+
 // Certifications
 export const getCertification = async (item) => {
   try {
     if (item.media_type === "movie") {
       const { data } = await tmdbApi.get(`/movie/${item.id}/release_dates`);
+
+      // major regions certifications
       const regions = ["IN", "US", "GB"];
 
       for (let region of regions) {
@@ -70,17 +88,21 @@ export const getCertification = async (item) => {
         if (cert) return cert.certification;
       }
 
-      return "NR"; // No rating
+      return "NR";
     }
 
     if (item.media_type === "tv") {
       const { data } = await tmdbApi.get(`/tv/${item.id}/content_ratings`);
+
+      // major regions certifications
       const regions = ["IN", "US", "GB"];
 
       for (let region of regions) {
         const ratingObj = data.results.find((r) => r.iso_3166_1 === region);
         if (ratingObj?.rating) return ratingObj.rating;
       }
+
+      console.log("");
 
       return "NR";
     }

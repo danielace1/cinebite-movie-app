@@ -21,7 +21,7 @@ const HeroCarousel = ({ movies }) => {
   return (
     <section className="mt-5 relative w-full">
       <h2 className="text-white text-2xl sm:text-3xl font-bold mb-3">
-        Now Playing
+        {movies[0]?.media_type === "tv" ? "Airing Today" : "Now Playing"}
       </h2>
 
       <div className="relative h-[300px] sm:h-[380px] lg:h-[450px] rounded-2xl overflow-hidden shadow-2xl">
@@ -53,7 +53,7 @@ HeroCarousel.propTypes = {
 
 export default HeroCarousel;
 
-// FadeSlide Component
+// Fade Slide Component
 const FadeSlide = ({ movie, isActive }) => {
   const [cert, setCert] = useState("");
 
@@ -64,10 +64,27 @@ const FadeSlide = ({ movie, isActive }) => {
     })();
   }, [movie]);
 
+  // Detect Movie or TV
+  const isTV = movie.media_type === "tv";
+
   const img = movie.backdrop_path || movie.poster_path;
-  const year = movie.release_date
+
+  const year = isTV
+    ? movie.first_air_date
+      ? new Date(movie.first_air_date).getFullYear()
+      : null
+    : movie.release_date
     ? new Date(movie.release_date).getFullYear()
     : null;
+
+  const title = isTV ? movie.name || movie.original_name : movie.title;
+  const overview = movie.overview;
+
+  const detailsUrl = isTV
+    ? `/user/TVshows/${movie.id}/details`
+    : `/user/movies/${movie.id}/details`;
+
+  const typeLabel = isTV ? "TV Series" : "Movie";
 
   return (
     <div
@@ -79,14 +96,14 @@ const FadeSlide = ({ movie, isActive }) => {
         className="absolute inset-0 w-full h-full object-cover"
       />
 
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent backdrop-blur-[1px] z-10 pointer-events-none" />
-
-      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 z-10 pointer-events-none" />
+      {/* Gradients */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent backdrop-blur-[1px] z-10" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 z-10" />
 
       <div className="relative z-20 px-[40px] md:px-16 max-w-3xl h-full flex flex-col justify-center space-y-6">
         <div className="flex items-center gap-3 text-gray-300 text-xs sm:text-sm">
           <span className="px-2 py-0.5 border border-white/30 rounded text-[10px] uppercase">
-            Movie
+            {typeLabel}
           </span>
 
           {year && <span>{year}</span>}
@@ -95,16 +112,16 @@ const FadeSlide = ({ movie, isActive }) => {
         </div>
 
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white drop-shadow-2xl leading-tight">
-          {movie.title}
+          {title}
         </h1>
 
         <p className="hidden sm:block text-gray-200 line-clamp-3 text-sm sm:text-base">
-          {movie.overview}
+          {overview}
         </p>
 
         <div className="flex gap-3 mt-3">
           <Link
-            to={`/user/movies/${movie.id}/details`}
+            to={detailsUrl}
             className="px-5 py-2 bg-white text-black font-semibold rounded-xl flex items-center gap-2 shadow-lg hover:bg-gray-200 transition"
           >
             <Play size={18} /> Details

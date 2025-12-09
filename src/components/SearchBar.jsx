@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import MovieIcon from "./Icons/MovieIcon";
 import TVIcon from "./Icons/TVShowIcon";
 
-const SearchBar = ({ onSearch, suggestions }) => {
+const SearchBar = ({ onSearch, suggestions, placeholder }) => {
   const [query, setQuery] = useState("");
   const [showSuggest, setShowSuggest] = useState(false);
 
@@ -44,7 +44,7 @@ const SearchBar = ({ onSearch, suggestions }) => {
           type="text"
           value={query}
           onChange={handleChange}
-          placeholder="Search for movies or TV shows..."
+          placeholder={placeholder}
           className="w-full pl-8 pr-10 bg-transparent text-white placeholder-gray-400 outline-none"
           onFocus={() => query && setShowSuggest(true)}
         />
@@ -92,6 +92,7 @@ const SearchBar = ({ onSearch, suggestions }) => {
 SearchBar.propTypes = {
   onSearch: PropTypes.func,
   suggestions: PropTypes.array,
+  placeholder: PropTypes.string,
 };
 
 export default SearchBar;

@@ -48,6 +48,7 @@ const Movies = () => {
     <div className="mt-4 mx-3 sm:mx-5">
       <SearchBar
         onSearch={setSearchQuery}
+        placeholder="Search for movies..."
         suggestions={searchResults.data || []}
       />
 
