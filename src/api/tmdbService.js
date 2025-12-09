@@ -5,7 +5,6 @@ const normalize = (items, type) =>
 
 export const getTrending = async () => {
   const { data } = await tmdbApi.get("/trending/all/day");
-  // console.log("Trending", data);
   return normalize(data.results, null);
 };
 
@@ -22,6 +21,21 @@ export const getTopRatedMovies = async () => {
 
 export const getUpcomingMovies = async () => {
   const { data } = await tmdbApi.get("/movie/upcoming");
+  return normalize(data.results, "movie");
+};
+
+export const getNowPlayingMovies = async () => {
+  const { data } = await tmdbApi.get("/movie/now_playing", {
+    params: { region: "IN" },
+  });
+  return normalize(data.results, "movie");
+};
+
+export const searchMovies = async (query) => {
+  if (!query.trim()) return [];
+  const { data } = await tmdbApi.get("/search/movie", {
+    params: { query, region: "IN" },
+  });
   return normalize(data.results, "movie");
 };
 

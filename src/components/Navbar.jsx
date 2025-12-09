@@ -3,14 +3,14 @@ import { Home, Film, Tv, Bookmark, Clapperboard } from "lucide-react";
 
 const Navbar = () => {
   const navItems = [
-    { to: "/user/dashboard", icon: <Home size={26} />, label: "Dashboard" },
+    { to: "/user/home", icon: <Home size={26} />, label: "Dashboard" },
     { to: "/user/movies", icon: <Film size={26} />, label: "Movies" },
     { to: "/user/TVshows", icon: <Tv size={26} />, label: "TV Shows" },
     { to: "/user/watchlist", icon: <Bookmark size={26} />, label: "Watchlist" },
   ];
 
   return (
-    <nav className="bg-[#1b263b]/80 backdrop-blur-xl md:py-3 h-[95vh] rounded-xl flex flex-col justify-between shadow-xl border border-white/10 fixed left-0 md:left-3 top-3 md:w-16 transition-all duration-300 z-50 max-sm:bottom-0 max-sm:top-auto max-sm:h-12 max-sm:w-full max-sm:flex-row max-sm:items-center max-sm:px-5 max-sm:rounded-t-md max-sm:rounded-b-none">
+    <nav className="bg-[#1b263b]/80 backdrop-blur-xl md:py-3 h-[95vh] rounded-xl flex flex-col justify-between shadow-xl border border-white/10 fixed sm:left-1 md:left-2 lg:left-3 top-3 sm:w-14 lg:w-16 transition-all duration-300 z-50 max-sm:bottom-0 max-sm:top-auto max-sm:h-12 max-sm:w-full max-sm:flex-row max-sm:items-center max-sm:px-5 max-sm:rounded-t-md max-sm:rounded-b-none">
       <div
         className="flex flex-col items-center max-sm:hidden"
         title="Cinebite"
@@ -37,7 +37,7 @@ const Navbar = () => {
                 <>
                   {icon}
                   {isActive && (
-                    <span className="absolute left-[-10px] w-1 h-7 bg-red-500 rounded-full max-sm:hidden"></span>
+                    <span className="absolute left-[-5px] md:left-[-6px] lg:left-[-10px] w-1 h-7 bg-red-500 rounded-full max-sm:hidden"></span>
                   )}
                 </>
               )}

@@ -5,7 +5,7 @@ import Loading from "./components/Loading.jsx";
 import Login from "./Pages/Login.jsx";
 import Signup from "./Pages/Signup.jsx";
 import Dashboard from "./Pages/Dashboard.jsx";
-import MoviesList from "./Pages/Movies.jsx";
+import Movies from "./Pages/Movies.jsx";
 import TVShows from "./Pages/TVShows.jsx";
 import Watchlist from "./Pages/Watchlist.jsx";
 // import MovieDetails from "./Pages/MovieDetails.jsx";
@@ -21,8 +21,8 @@ const App = () => {
         <Route path="/signup" element={<Signup />} />
 
         <Route path="/user" element={<UserLayout />}>
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="movies" element={<MoviesList />} />
+          <Route path="home" element={<Dashboard />} />
+          <Route path="movies" element={<Movies />} />
           {/* <Route path="movies/:id/details" element={<MovieDetails />} /> */}
           <Route path="tvshows" element={<TVShows />} />
           {/* <Route path="tvshows/:id/details" element={<TVshowDetails />} /> */}

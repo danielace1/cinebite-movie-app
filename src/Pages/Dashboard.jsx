@@ -91,7 +91,7 @@ const CategoryRow = ({ title, fetchFn }) => {
     queryFn: fetchFn,
   });
 
-  // Fetch certifications for all items
+  // Fetch certifications
   const certQueries = useQuery({
     queryKey: ["certifications", title],
     enabled: data.length > 0,

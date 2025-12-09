@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 const Login = () => {
   return (
     <div>
-      <Link to="/user/dashboard">Login</Link>
+      <Link to="/user/home">Login</Link>
     </div>
   );
 };

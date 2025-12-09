@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Search, X } from "lucide-react";
 import PropTypes from "prop-types";
 import MovieIcon from "./Icons/MovieIcon";
@@ -7,6 +7,8 @@ import TVIcon from "./Icons/TVShowIcon";
 const SearchBar = ({ onSearch, suggestions }) => {
   const [query, setQuery] = useState("");
   const [showSuggest, setShowSuggest] = useState(false);
+
+  const ref = useRef(null);
 
   const handleChange = (e) => {
     const value = e.target.value;
@@ -21,9 +23,21 @@ const SearchBar = ({ onSearch, suggestions }) => {
     setShowSuggest(false);
   };
 
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setShowSuggest(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <div className="relative w-full">
-      <div className="relative bg-gray-800/80 backdrop-blur-md rounded-xl border border-white/10 flex items-center px-4 py-3 focus-within:ring-2 focus-within:ring-primary">
+    <div ref={ref} className="relative w-full">
+      <div className="relative bg-gray-800/80 backdrop-blur-md rounded-xl border border-white/10 flex items-center px-4 py-3 focus-within:border-gray-600">
         <Search className="text-gray-300 absolute left-4" size={20} />
 
         <input
@@ -31,7 +45,8 @@ const SearchBar = ({ onSearch, suggestions }) => {
           value={query}
           onChange={handleChange}
           placeholder="Search for movies or TV shows..."
-          className="w-full pl-10 pr-10 bg-transparent text-white placeholder-gray-400 outline-none"
+          className="w-full pl-8 pr-10 bg-transparent text-white placeholder-gray-400 outline-none"
+          onFocus={() => query && setShowSuggest(true)}
         />
 
         {query && (
@@ -46,7 +61,7 @@ const SearchBar = ({ onSearch, suggestions }) => {
 
       {/* Suggestions */}
       {showSuggest && suggestions?.length > 0 && (
-        <div className="absolute w-full bg-gray-900/90 backdrop-blur-md rounded-lg shadow-lg border border-white/10 max-h-60 overflow-y-auto z-50">
+        <div className="absolute w-full bg-gray-900/90 backdrop-blur-md rounded-lg shadow-lg border border-white/10 max-h-60 overflow-y-auto z-50 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-800/50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gradient-to-b [&::-webkit-scrollbar-thumb]:from-gray-500 [&::-webkit-scrollbar-thumb]:to-gray-400 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border[&::-webkit-scrollbar-thumb]:border-gray-900/40 [&::-webkit-scrollbar-thumb:hover]:from-gray-400[&::-webkit-scrollbar-thumb:hover]:to-gray-300">
           {suggestions.slice(0, 8).map((item) => (
             <button
               key={item.id}

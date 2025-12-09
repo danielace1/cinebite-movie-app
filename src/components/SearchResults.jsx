@@ -17,9 +17,11 @@ const SearchResults = ({ results }) => {
     activeTab === "all" ? data : activeTab === "movie" ? movies : tv;
 
   return (
-    <section className="mt-6">
-      <div className="flex items-center justify-between mb-3">
-        <h1 className="text-white text-2xl font-bold">Search Results</h1>
+    <section className="mt-4 md:mt-6">
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-3 justify-between mb-5">
+        <h1 className="text-white text-lg md:text-2xl font-bold">
+          Search Results
+        </h1>
 
         {/* Tabs */}
         <div className="flex gap-4">
