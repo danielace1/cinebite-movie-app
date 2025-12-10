@@ -102,8 +102,6 @@ export const getCertification = async (item) => {
         if (ratingObj?.rating) return ratingObj.rating;
       }
 
-      console.log("");
-
       return "NR";
     }
   } catch (error) {
@@ -122,4 +120,58 @@ export const searchMulti = async (query) => {
   return data.results.filter(
     (item) => item.media_type === "movie" || item.media_type === "tv"
   );
+};
+
+// Movie Details
+export const getMovieDetails = async (id) => {
+  const { data } = await tmdbApi.get(`/movie/${id}`, {
+    params: {
+      append_to_response:
+        "credits,videos,images,reviews,recommendations,release_dates,watch/providers",
+    },
+  });
+
+  const trailer =
+    data.videos.results.find(
+      (v) =>
+        (v.name.includes("Final Trailer") ||
+          v.name.includes("Official Trailer")) &&
+        v.type === "Trailer"
+    ) ||
+    data.videos.results.find((v) => v.type === "Trailer") ||
+    null;
+
+  const watchProviders = data["watch/providers"]?.results?.IN || null;
+
+  const cert = await getCertification({
+    id: data.id,
+    media_type: "movie",
+  });
+
+  const percentage = Math.round((data.vote_average / 10) * 100);
+
+  const runtimeText = (() => {
+    if (!data.runtime) return null;
+    const h = Math.floor(data.runtime / 60);
+    const m = data.runtime % 60;
+    return `${h}h ${m}m`;
+  })();
+
+  const backdrops = data.images.backdrops.slice(0, 20);
+  const posters = data.images.posters.slice(0, 20);
+
+  return {
+    details: data,
+    trailer,
+    watchProviders,
+    cert,
+    credits: data.credits.cast,
+    reviews: data.reviews.results,
+    videos: data.videos.results,
+    backdrops,
+    posters,
+    recommendations: data.recommendations.results,
+    percentage,
+    runtimeText,
+  };
 };

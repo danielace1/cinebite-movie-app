@@ -1,289 +1,206 @@
 import PropTypes from "prop-types";
+import { Play, Plus } from "lucide-react";
 
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
-import { useRef } from "react";
+const Detail = ({ movie, playTrailer }) => {
+  if (!movie) return null;
 
-const Detail = ({
-  details,
-  watchProviders,
-  textColor,
-  certifications,
-  genre,
-  formattedtime,
-  percentage,
-  circumference,
-  offset,
-  openModal,
-  trailer,
-  pages,
-}) => {
-  const plugin = useRef(
-    Autoplay({
-      delay: 4000,
-      loop: true,
-      infinite: true,
-    })
-  );
+  const { details, watchProviders, cert, percentage, runtimeText, trailer } =
+    movie;
+
+  // console.log("Movie", movie);
+
+  const year = details.release_date
+    ? new Date(details.release_date).getFullYear()
+    : details.first_air_date
+    ? new Date(details.first_air_date).getFullYear()
+    : null;
+
+  const genres = details.genres?.map((g) => g.name).join(" • ") || "";
+  const rating = typeof percentage === "number" ? percentage : 0;
+  const isNR = !percentage && percentage !== 0;
+
+  const radius = 18;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (Math.min(rating, 100) / 100) * circumference;
+
+  const posterURL = details.poster_path
+    ? `https://image.tmdb.org/t/p/w500${details.poster_path}`
+    : "/no-poster.jpg";
 
   return (
-    <div className="mx-20 py-10 flex space-x-12 z-10 relative">
-      {/* Movie Poster */}
-      <div className="w-4/12">
-        <img
-          src={`https://image.tmdb.org/t/p/w500${details?.poster_path}`}
-          alt={details?.title}
-          className={`rounded-t-lg object-cover ${
-            watchProviders ? "rounded-b-none" : "rounded-b-lg mt-3"
-          }`}
-        />
-        {watchProviders && (
-          <div className="p-3 flex justify-center items-center space-x-3 text-white bg-primary-col1 rounded-b-lg">
-            <div>
+    <div className="relative z-10 px-4 sm:px-8 lg:px-12 py-8 lg:py-10 flex flex-col lg:flex-row gap-7 lg:gap-10 items-stretch">
+      {/* Poster */}
+      <div className="w-full max-w-[220px] mx-auto lg:mx-0 lg:w-[26%]">
+        <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-black/40 border border-white/10 bg-black/40 backdrop-blur-md">
+          <img
+            src={posterURL}
+            onError={(e) => (e.target.src = "/no-poster.jpg")}
+            alt={details.title}
+            className="w-full h-full object-cover"
+          />
+
+          {/* Streaming badge */}
+          {watchProviders && (
+            <div className="absolute bottom-0 inset-x-0 bg-black/70 backdrop-blur-md px-3 py-2 flex items-center gap-3">
               <img
-                src={`https://image.tmdb.org/t/p/w92${
-                  watchProviders.flatrate?.[0]?.logo_path ||
-                  watchProviders.rent?.[watchProviders.rent.length - 1]
-                    ?.logo_path
-                }`}
-                alt={`${watchProviders.flatrate?.[0]?.provider_name}`}
-                className="w-10 h-10 rounded"
+                src={
+                  watchProviders?.flatrate?.[0]?.logo_path
+                    ? `https://image.tmdb.org/t/p/w92${watchProviders.flatrate[0].logo_path}`
+                    : "/no-img.png"
+                }
+                onError={(e) => (e.target.src = "/no-img.png")}
+                alt="provider"
+                className="w-8 h-8 rounded-md object-contain bg-white"
               />
-            </div>
-            <div>
-              <span className="font-semibold text-primary-col3">
-                Now Streaming
-              </span>
-              <br />
-              <span className="block -mt-1 font-bold">Watch Now</span>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Movie Details */}
-      <div className={`w-8/12 mt-5 ${textColor}`}>
-        <div>
-          <h1 className="font-bold text-3xl mb-1">
-            {details?.title || details?.original_name}{" "}
-            <span
-              className={`${
-                textColor === "text-white" ? "text-gray-200" : "black"
-              } text-2xl font-semibold`}
-            >
-              (
-              {new Date(
-                details?.release_date || details?.first_air_date
-              ).getFullYear()}
-              )
-            </span>
-          </h1>
-          <div
-            className={`flex items-center ${
-              textColor === "text-white" ? "text-gray-200" : "black"
-            } font-semibold`}
-          >
-            {certifications && (
-              <>
-                <span
-                  className={`border px-1  ${
-                    textColor === "text-white"
-                      ? "text-gray-200 border-gray-300"
-                      : "black border-black"
-                  }`}
-                >
-                  {certifications.certification}
-                </span>
-                &nbsp;&nbsp;
-              </>
-            )}
-            {details?.first_air_date ? (
-              ""
-            ) : (
-              <>
-                <span>
-                  {new Date(
-                    certifications?.release_date || details?.release_date
-                  ).toLocaleDateString()}
-                </span>
-                &nbsp;({certifications?.region || details?.origin_country}
-                )&nbsp;&nbsp;
-                <span
-                  className={`w-1 h-1 rounded-full ${
-                    textColor === "text-white" ? "bg-gray-200" : "bg-black"
-                  }`}
-                ></span>
-                &nbsp;&nbsp;
-              </>
-            )}
-            {genre.map((g) => g.name).join(", ")}&nbsp;&nbsp;
-            {details?.first_air_date
-              ? ""
-              : formattedtime && (
-                  <>
-                    <span
-                      className={`w-1 h-1 rounded-full ${
-                        textColor === "text-white" ? "bg-gray-200" : "bg-black"
-                      }`}
-                    ></span>
-                    &nbsp;&nbsp;{formattedtime}
-                  </>
-                )}
-          </div>
-        </div>
-
-        <div className="mt-8 flex items-center">
-          {/* Circular Progress */}
-          <div className="relative size-16 bg-primary-col1 rounded-full p-0.5 mr-2 hover:cursor-pointer transform-gpu will-change-transform transition-transform hover:scale-110">
-            <svg
-              className="size-full -rotate-90"
-              viewBox="0 0 36 36"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              {/* Background Circle */}
-              <circle
-                cx={18}
-                cy={18}
-                r={16}
-                fill="none"
-                className={`stroke-current ${
-                  percentage < 70 ? "text-amber-900" : "text-green-900"
-                }`}
-                strokeWidth={2}
-              />
-              {/* Progress Circle */}
-              <circle
-                cx={18}
-                cy={18}
-                r={16}
-                fill="none"
-                className={`stroke-current ${
-                  percentage < 70 ? "text-amber-300" : "text-green-500"
-                }`}
-                strokeWidth={2}
-                strokeDasharray={circumference}
-                strokeDashoffset={offset}
-                strokeLinecap="round"
-              />
-            </svg>
-            {/* Percentage Text */}
-            <div className="absolute top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2">
-              <span className="flex items-center text-center text-lg font-bold text-white">
-                {percentage}
-                <span className="text-xs">
-                  {percentage === "NR" ? "" : "%"}
-                </span>{" "}
-              </span>
-            </div>
-          </div>
-          {/* End Circular Progress */}
-
-          <span className="font-bold">
-            User <br /> Score
-          </span>
-        </div>
-
-        <div className="mt-8 flex items-center space-x-5">
-          {/* WatchList */}
-          <div className="bg-primary-col3 p-2 rounded-full">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              className="fill-current text-white hover:cursor-pointer hover:text-primary-col1"
-            >
-              <path d="m12 18l-4.2 1.8q-1 .425-1.9-.162T5 17.975V5q0-.825.588-1.412T7 3h10q.825 0 1.413.588T19 5v12.975q0 1.075-.9 1.663t-1.9.162zm0-2.2l5 2.15V5H7v12.95zM12 5H7h10z"></path>
-            </svg>
-
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              className="hidden fill-current text-white hover:cursor-pointer hover:text-primary-col1"
-            >
-              <path d="m12 16.923l-3.738 1.608q-.808.348-1.535-.134Q6 17.916 6 17.052V5.616q0-.691.463-1.153T7.616 4h8.769q.69 0 1.153.463T18 5.616v11.436q0 .864-.727 1.345q-.727.482-1.535.134z"></path>
-            </svg>
-          </div>
-          {trailer.length > 0 && (
-            <div
-              className="flex items-center justify-center font-bold bg-sky-900 text-white px-3 py-2 rounded-lg hover:cursor-pointer transition-all hover:bg-sky-950"
-              onClick={() => openModal(trailer[0]?.key)}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                className="fill-current text-white mr-1"
-              >
-                <path d="M8 17.175V6.825q0-.425.3-.713t.7-.287q.125 0 .263.037t.262.113l8.15 5.175q.225.15.338.375t.112.475t-.112.475t-.338.375l-8.15 5.175q-.125.075-.262.113T9 18.175q-.4 0-.7-.288t-.3-.712"></path>
-              </svg>
-              Play Trailer
+              <div className="text-xs leading-snug">
+                <p className="text-primary-col3 font-semibold uppercase tracking-wide">
+                  Now Streaming
+                </p>
+                <p className="text-white font-semibold text-[11px]">
+                  Watch on{" "}
+                  {watchProviders?.flatrate?.[0]?.provider_name ||
+                    watchProviders?.buy?.[0]?.provider_name ||
+                    "OTT Platform"}
+                </p>
+              </div>
             </div>
           )}
         </div>
+      </div>
 
-        <div className="mt-10">
-          <p
-            className={`${
-              textColor === "text-white" ? "text-gray-200" : "black"
-            } font-semibold italic`}
-          >
-            {details?.tagline}
-          </p>
+      {/* Info */}
+      <div className="flex-1 text-white flex flex-col justify-center">
+        <div>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)]">
+            {details.title}
+            {year && (
+              <span className="ml-2 text-xl font-semibold text-gray-200/90">
+                ({year})
+              </span>
+            )}
+          </h1>
 
-          <h2 className="font-bold mt-2 text-xl">Overview</h2>
-          <p
-            className={`${
-              textColor === "text-white"
-                ? "text-gray-200"
-                : "black font-semibold"
-            } `}
-          >
-            {details?.overview}
-          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-100/90 font-medium">
+            <span className="border border-gray-300/60 px-1.5 py-0.5 rounded-md text-[11px] uppercase tracking-wide">
+              {cert || "NR"}
+            </span>
+
+            {details.release_date && (
+              <>
+                <span>
+                  {new Date(details.release_date).toLocaleDateString("en-IN", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </span>
+              </>
+            )}
+
+            {runtimeText && <span>• {runtimeText}</span>}
+
+            {genres && <span className="hidden sm:inline">• {genres}</span>}
+          </div>
         </div>
 
-        <div className="mt-8">
-          {/* Names */}
-          <Carousel className="mt-5 overflow-hidden" plugins={[plugin.current]}>
-            <CarouselContent>
-              {pages.map((page, pageIndex) => (
-                <CarouselItem key={pageIndex} className="flex-shrink-0 w-full">
-                  <div className="grid grid-cols-3 gap-4">
-                    {page.map((credit, index) => (
-                      <div key={index} className="flex flex-col">
-                        <h1
-                          className={`text-lg ${
-                            textColor === "text-white"
-                              ? "text-gray-100"
-                              : "text-zinc-950 font-semibold"
-                          }`}
-                        >
-                          {credit.name}
-                        </h1>
-                        <h2
-                          className={`text-sm ${
-                            textColor === "text-white"
-                              ? "text-gray-300"
-                              : "text-zinc-950"
-                          }`}
-                        >
-                          {credit.character || credit.job}
-                        </h2>
-                      </div>
-                    ))}
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
+        <div className="mt-6 flex flex-wrap items-center gap-8">
+          {/* Score */}
+          <div className="flex items-center gap-4">
+            <div
+              className="relative size-[72px] bg-black/50 rounded-full 
+                 p-1 shadow-lg shadow-black/60 border border-white/10
+                 transition-all duration-300 hover:scale-110 hover:shadow-2xl"
+            >
+              <svg className="size-full -rotate-90" viewBox="0 0 44 44">
+                <circle
+                  cx="22"
+                  cy="22"
+                  r={radius}
+                  fill="none"
+                  className="stroke-gray-700"
+                  strokeWidth="2"
+                />
+
+                <circle
+                  cx="22"
+                  cy="22"
+                  r={radius}
+                  fill="none"
+                  className={
+                    rating < 70 ? "stroke-amber-400" : "stroke-emerald-400"
+                  }
+                  strokeWidth="3"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={isNR ? circumference : offset}
+                  strokeLinecap="round"
+                  style={{ transition: "stroke-dashoffset .4s ease-out" }}
+                />
+              </svg>
+
+              <div className="absolute inset-0 flex flex-col items-center justify-center leading-none">
+                {isNR ? (
+                  <span className="text-[17px] font-extrabold">NR</span>
+                ) : (
+                  <span className="text-[16px] font-extrabold flex items-center">
+                    {rating}
+                    <span className="text-[10px] font-bold ml-0.5">%</span>
+                  </span>
+                )}
+
+                {!isNR && (
+                  <span className="text-[9px] font-semibold text-gray-300 tracking-wide">
+                    Score
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <span className="text-xs sm:text-sm font-semibold text-gray-100 uppercase tracking-wide">
+              User
+              <br />
+              Score
+            </span>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            {trailer && (
+              <button
+                onClick={() => playTrailer(trailer.key)}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white 
+                   text-black font-semibold text-sm shadow-lg hover:bg-gray-100 
+                   transition-all duration-300 hover:scale-105"
+              >
+                <Play className="w-4 h-4" />
+                Play Trailer
+              </button>
+            )}
+
+            <button
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl 
+                 bg-white/20 border border-white/30 text-sm font-medium 
+                 hover:bg-white/30 transition-all duration-300 hover:scale-105"
+            >
+              <Plus className="w-4 h-4" />
+              Watchlist
+            </button>
+          </div>
+        </div>
+
+        {/* Overview */}
+        <div className="mt-7 space-y-3 max-w-3xl">
+          {details.tagline && (
+            <p className="text-sm sm:text-base font-semibold italic text-gray-100/90">
+              {details.tagline}
+            </p>
+          )}
+
+          <div>
+            <h2 className="text-lg sm:text-xl font-bold mb-1.5">Overview</h2>
+            <p className="text-sm sm:text-base text-gray-100/90 leading-relaxed">
+              {details.overview || "No overview available."}
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -291,18 +208,8 @@ const Detail = ({
 };
 
 Detail.propTypes = {
-  details: PropTypes.object,
-  watchProviders: PropTypes.object,
-  textColor: PropTypes.string,
-  certifications: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-  genre: PropTypes.array,
-  formattedtime: PropTypes.string,
-  percentage: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  circumference: PropTypes.number,
-  offset: PropTypes.string,
-  openModal: PropTypes.func,
-  trailer: PropTypes.array,
-  pages: PropTypes.array,
+  movie: PropTypes.object,
+  playTrailer: PropTypes.func,
 };
 
 export default Detail;
