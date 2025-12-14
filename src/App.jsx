@@ -9,7 +9,7 @@ import Movies from "./Pages/Movies.jsx";
 import TVShows from "./Pages/TVShows.jsx";
 import Watchlist from "./Pages/Watchlist.jsx";
 import MovieDetails from "./Pages/MovieDetails.jsx";
-import TVShowDetails from "./Pages/TVShowDetails.jsx";
+import TVShowDetails from "./Pages/TVshowDetails.jsx";
 import NotFound from "./Pages/NotFound.jsx";
 import UserLayout from "./Layout/UserLayout.jsx";
 
