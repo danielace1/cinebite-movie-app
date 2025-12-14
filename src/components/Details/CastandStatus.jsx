@@ -10,172 +10,121 @@ import {
 const CastandStatus = ({ details, credits }) => {
   const fallbackProfile = "/no-profile.png";
 
+  const hasCast = Array.isArray(credits) && credits.length > 0;
+  const hasDetails = !!details;
+
   return (
-    <div className="w-full flex flex-col lg:flex-row lg:items-start gap-6">
-      {/* LEFT — CAST */}
-      <div
-        className="
-      w-full
-      md:basis-[60%]
-      lg:basis-[65%]
-      xl:basis-[70%]
-      min-w-0
-      xl:max-w-[1000px]   /* Limit only on XL screens */
-    "
-      >
-        <div className="rounded-2xl bg-slate-900/40 border border-white/10 backdrop-blur-xl shadow-xl p-4 md:p-3 w-full">
-          <h2 className="text-white text-xl font-bold mb-4">Top Cast</h2>
+    <div className="mt-12 md:mt-14 w-full grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
+      <div className="min-w-0">
+        <div className="rounded-2xl bg-slate-900/40 border border-white/10 backdrop-blur-xl shadow-xl p-3 w-full">
+          <h2 className="text-white text-2xl font-bold mb-4">Top Cast</h2>
 
-          <Carousel
-            className="w-full overflow-hidden"
-            style={{ touchAction: "pan-y" }}
-            opts={{
-              align: "start",
-              dragFree: true,
-              containScroll: "trimSnaps",
-            }}
-          >
-            <CarouselContent className="pl-4 pr-4">
-              {credits.map((cast) => (
-                <CarouselItem
-                  key={cast.cast_id || `${cast.id}-${cast.credit_id}`}
-                  className="basis-[120px] md:basis-[135px] xl:basis-[150px]"
-                >
-                  <div className="rounded-xl overflow-hidden bg-slate-900/50 border border-white/10 shadow-lg hover:scale-105 transition-transform">
-                    <div className="h-[160px] md:h-[190px] bg-slate-800/60">
-                      <img
-                        src={
-                          cast.profile_path
-                            ? `https://image.tmdb.org/t/p/w185${cast.profile_path}`
-                            : fallbackProfile
-                        }
-                        onError={(e) => (e.target.src = fallbackProfile)}
-                        alt={cast.name}
-                        className="w-full h-full object-cover"
-                      />
+          {/* Actor Cards */}
+          {!hasCast ? (
+            <div className="flex items-center justify-center h-[220px] text-gray-400 font-semibold">
+              No cast information available.
+            </div>
+          ) : (
+            <Carousel
+              className="relative w-full overflow-hidden"
+              style={{ touchAction: "pan-y" }}
+              opts={{
+                align: "start",
+                dragFree: true,
+                containScroll: "trimSnaps",
+              }}
+            >
+              <CarouselContent className="px-2 md:px-4">
+                {credits.map((cast) => (
+                  <CarouselItem
+                    key={cast.cast_id || cast.id}
+                    className="basis-[120px] md:basis-[135px] xl:basis-[150px]"
+                  >
+                    <div className="rounded-xl overflow-hidden bg-slate-900/50 border border-white/10 shadow-lg hover:scale-105 transition-transform">
+                      <div className="h-[160px] md:h-[190px] bg-slate-800/60">
+                        <img
+                          src={
+                            cast.profile_path
+                              ? `https://image.tmdb.org/t/p/w185${cast.profile_path}`
+                              : fallbackProfile
+                          }
+                          onError={(e) => (e.target.src = fallbackProfile)}
+                          alt={cast.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+
+                      <div className="px-3 py-2.5">
+                        <p className="text-sm font-semibold text-white truncate">
+                          {cast.name}
+                        </p>
+                        <p className="text-[11px] text-gray-300 line-clamp-2">
+                          {cast.character || cast.known_for_department || "--"}
+                        </p>
+                      </div>
                     </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
 
-                    <div className="px-3 py-2.5">
-                      <p className="text-sm font-semibold text-white truncate">
-                        {cast.name}
-                      </p>
-                      <p className="text-[11px] text-gray-300 line-clamp-2">
-                        {cast.character || cast.known_for_department}
-                      </p>
-                    </div>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-
-            <CarouselPrevious className="bg-white/15 hover:bg-white/25 text-white border-none -left-2 backdrop-blur-md" />
-            <CarouselNext className="bg-white/15 hover:bg-white/25 text-white border-none -right-2 backdrop-blur-md" />
-          </Carousel>
+              <CarouselPrevious className="absolute -left-2 top-1/2 -translate-y-1/2 z-50 bg-primary-col1 text-white border-none shadow-lg" />
+              <CarouselNext className="absolute -right-2 top-1/2 -translate-y-1/2 z-50 bg-primary-col1 text-white border-none shadow-lg" />
+            </Carousel>
+          )}
         </div>
       </div>
 
-      {/* RIGHT — DETAILS */}
-      <aside
-        className="
-      w-full
-      md:basis-[40%]
-      lg:basis-[35%]
-      xl:basis-[30%]
-      max-w-full
-      lg:max-w-[320px]
-      min-w-[260px]
-      shrink-0
-      bg-slate-900/40 border border-white/10 rounded-2xl 
-      backdrop-blur-xl shadow-xl p-5 space-y-4 text-gray-100
-    "
-      >
-        <h2 className="text-lg font-bold text-white tracking-wide">Details</h2>
+      {/* Details Box*/}
+      <aside className="w-full max-w-full lg:max-w-[320px] bg-slate-900/40 border border-white/10 rounded-2xl backdrop-blur-xl shadow-xl p-5 space-y-4 text-gray-100">
+        <h2 className="text-xl font-bold text-white tracking-wide">Details</h2>
 
-        <div className="space-y-4">
-          <div>
-            <p className="text-xs uppercase text-gray-400 tracking-wider">
-              Status
-            </p>
-            <p className="font-medium">{details?.status || "--"}</p>
-          </div>
+        {!hasDetails ? (
+          <p className="text-gray-400 text-sm">
+            No additional details available.
+          </p>
+        ) : (
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs uppercase text-gray-400">Status</p>
+              <p>{details?.status || "--"}</p>
+            </div>
 
-          {details?.runtime ? (
-            <>
-              <div className="border-t border-white/10 pt-3">
-                <p className="text-xs uppercase text-gray-400 tracking-wider">
-                  Budget
-                </p>
-                <p className="font-medium">
-                  {details.budget
-                    ? new Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                        maximumFractionDigits: 0,
-                      }).format(details.budget)
-                    : "--"}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-xs uppercase text-gray-400 tracking-wider">
-                  Revenue
-                </p>
-                <p className="font-medium">
-                  {details.revenue
-                    ? new Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                        maximumFractionDigits: 0,
-                      }).format(details.revenue)
-                    : "--"}
-                </p>
-              </div>
-            </>
-          ) : (
-            <>
-              {details?.networks?.[0] && (
+            {details?.runtime && (
+              <>
                 <div className="border-t border-white/10 pt-3">
-                  <p className="text-xs uppercase text-gray-400 tracking-wider">
-                    Network
+                  <p className="text-xs uppercase text-gray-400">Budget</p>
+                  <p>
+                    {details.budget
+                      ? new Intl.NumberFormat("en-US", {
+                          style: "currency",
+                          currency: "USD",
+                        }).format(details.budget)
+                      : "--"}
                   </p>
-
-                  <div className="mt-2 flex items-center gap-2">
-                    <img
-                      src={
-                        details.networks[0].logo_path
-                          ? `https://image.tmdb.org/t/p/w92${details.networks[0].logo_path}`
-                          : "/no-img.png"
-                      }
-                      alt={details.networks[0].name}
-                      className="bg-white rounded-md p-1 h-7"
-                    />
-                    <span className="font-medium">
-                      {details.networks[0].name}
-                    </span>
-                  </div>
                 </div>
-              )}
 
-              {details?.type && (
                 <div>
-                  <p className="text-xs uppercase text-gray-400 tracking-wider">
-                    Type
+                  <p className="text-xs uppercase text-gray-400">Revenue</p>
+                  <p>
+                    {details.revenue
+                      ? new Intl.NumberFormat("en-US", {
+                          style: "currency",
+                          currency: "USD",
+                        }).format(details.revenue)
+                      : "--"}
                   </p>
-                  <p className="font-medium">{details.type}</p>
                 </div>
-              )}
-            </>
-          )}
+              </>
+            )}
 
-          <div className="border-t border-white/10 pt-3">
-            <p className="text-xs uppercase text-gray-400 tracking-wider">
-              Original Language
-            </p>
-            <p className="font-medium">
-              {details?.spoken_languages?.[0]?.english_name || "--"}
-            </p>
+            <div className="border-t border-white/10 pt-3">
+              <p className="text-xs uppercase text-gray-400">
+                Original Language
+              </p>
+              <p>{details?.spoken_languages?.[0]?.english_name || "--"}</p>
+            </div>
           </div>
-        </div>
+        )}
       </aside>
     </div>
   );

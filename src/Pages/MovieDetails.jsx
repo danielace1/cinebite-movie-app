@@ -58,14 +58,14 @@ const MovieDetails = () => {
     recommendations,
   } = movie;
 
-  console.log("Credits", credits);
+  console.log("Videos", videos);
 
   const backdropURL = details.backdrop_path
     ? `https://image.tmdb.org/t/p/w1280${details.backdrop_path}`
     : "/no-img.png";
 
   return (
-    <div className="mt-10 px-4 sm:px-6 lg:px-10 w-full max-w-[1440px] mx-auto overflow-x-hidden">
+    <div className="mt-10 px-4 sm:px-6 lg:px-10 w-full max-w-[1440px] mx-auto overflow-x-hidden pb-1">
       {/* Hero Section*/}
       <div
         className="relative rounded-2xl overflow-hidden shadow-xl"
@@ -83,16 +83,13 @@ const MovieDetails = () => {
         <Detail movie={movie} playTrailer={openModal} />
       </div>
 
-      {/* ==== CAST SECTION ==== */}
-      <div className="mt-12">
-        <h1 className="text-3xl font-bold text-white mb-4">Top Cast</h1>
-        {/* <CastandStatus details={details} credits={credits} /> */}
-      </div>
+      {/* Cast and Status */}
+      <CastandStatus details={details} credits={credits} />
 
-      {/* ==== REVIEWS ==== */}
+      {/* Reviews */}
       <Reviews reviews={reviews} details={details} />
 
-      {/* ==== MEDIA ==== */}
+      {/* Media */}
       <Media
         videos={videos}
         backdrops={backdrops}
@@ -100,7 +97,7 @@ const MovieDetails = () => {
         openModal={openModal}
       />
 
-      {/* ==== MODAL PLAYER ==== */}
+      {/* Video Modal */}
       <ModalVideo
         channel="youtube"
         isOpen={showVideo}
@@ -108,7 +105,7 @@ const MovieDetails = () => {
         onClose={closeModal}
       />
 
-      {/* ==== RECOMMENDATIONS ==== */}
+      {/* Recommendations */}
       {recommendations.length > 0 && (
         <Recommendations recommendations={recommendations} />
       )}
