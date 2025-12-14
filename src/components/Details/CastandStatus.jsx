@@ -10,6 +10,7 @@ import {
 const CastandStatus = ({ details, credits }) => {
   const fallbackProfile = "/no-profile.png";
 
+  const isTV = details?.first_air_date !== undefined;
   const hasCast = Array.isArray(credits) && credits.length > 0;
   const hasDetails = !!details;
 
@@ -84,12 +85,14 @@ const CastandStatus = ({ details, credits }) => {
           </p>
         ) : (
           <div className="space-y-4">
+            {/* Status */}
             <div>
               <p className="text-xs uppercase text-gray-400">Status</p>
               <p>{details?.status || "--"}</p>
             </div>
 
-            {details?.runtime && (
+            {/* Movie */}
+            {!isTV && details?.runtime && (
               <>
                 <div className="border-t border-white/10 pt-3">
                   <p className="text-xs uppercase text-gray-400">Budget</p>
@@ -113,6 +116,57 @@ const CastandStatus = ({ details, credits }) => {
                         }).format(details.revenue)
                       : "--"}
                   </p>
+                </div>
+              </>
+            )}
+
+            {/* TV Show */}
+            {isTV && (
+              <>
+                <div className="border-t border-white/10 pt-3">
+                  <p className="text-xs uppercase text-gray-400">
+                    First Air Date
+                  </p>
+                  <p>
+                    {details.first_air_date
+                      ? new Date(details.first_air_date).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          }
+                        )
+                      : "--"}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs uppercase text-gray-400">
+                    Last Air Date
+                  </p>
+                  <p>
+                    {details.last_air_date
+                      ? new Date(details.last_air_date).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          }
+                        )
+                      : "--"}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs uppercase text-gray-400">Seasons</p>
+                  <p>{details.number_of_seasons ?? "--"}</p>
+                </div>
+
+                <div>
+                  <p className="text-xs uppercase text-gray-400">Episodes</p>
+                  <p>{details.number_of_episodes ?? "--"}</p>
                 </div>
               </>
             )}

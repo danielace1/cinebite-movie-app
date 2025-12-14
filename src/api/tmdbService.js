@@ -175,3 +175,59 @@ export const getMovieDetails = async (id) => {
     runtimeText,
   };
 };
+
+// TV Details
+export const getTVDetails = async (id) => {
+  const { data } = await tmdbApi.get(`/tv/${id}`, {
+    params: {
+      append_to_response:
+        "credits,videos,images,reviews,recommendations,content_ratings,watch/providers",
+    },
+  });
+
+  const trailer =
+    data.videos.results.find(
+      (v) =>
+        (v.name.includes("Official Trailer") ||
+          v.name.includes("Final Trailer")) &&
+        v.type === "Trailer"
+    ) ||
+    data.videos.results.find((v) => v.type === "Trailer") ||
+    null;
+
+  const watchProviders = data["watch/providers"]?.results?.IN || null;
+
+  const cert = await getCertification({
+    id: data.id,
+    media_type: "tv",
+  });
+
+  const percentage = Math.round((data.vote_average / 10) * 100);
+
+  const runtimeText = (() => {
+    const runtime = data.episode_run_time?.[0];
+    if (!runtime) return null;
+
+    const h = Math.floor(runtime / 60);
+    const m = runtime % 60;
+    return h ? `${h}h ${m}m` : `${m}m`;
+  })();
+
+  const backdrops = data.images.backdrops.slice(0, 20);
+  const posters = data.images.posters.slice(0, 20);
+
+  return {
+    details: data,
+    trailer,
+    watchProviders,
+    cert,
+    credits: data.credits.cast,
+    reviews: data.reviews.results,
+    videos: data.videos.results,
+    backdrops,
+    posters,
+    recommendations: data.recommendations.results,
+    percentage,
+    runtimeText,
+  };
+};

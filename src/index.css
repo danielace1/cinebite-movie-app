@@ -72,3 +72,7 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.modal-video-close-btn {
+  @apply !size-7 !-top-8 md:!-top-6 !-right-2 md:!-right-6;
+}

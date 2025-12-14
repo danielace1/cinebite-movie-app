@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { useQuery } from "@tanstack/react-query";
 import Autoplay from "embla-carousel-autoplay";
@@ -131,18 +132,31 @@ const CategoryRow = ({ title, fetchFn }) => {
                 key={item.id}
                 className="basis-1/2 sm:basis-1/3 lg:basis-1/5 px-2"
               >
-                <MediaCard
-                  img={item.backdrop_path}
-                  year={new Date(
-                    item.release_date || item.first_air_date
-                  ).getFullYear()}
-                  icon={
-                    item.media_type === "movie" ? <MovieIcon /> : <TVIcon />
+                <Link
+                  to={
+                    item.media_type === "movie"
+                      ? `/user/movies/${item.id}/details`
+                      : `/user/TVshows/${item.id}/details`
                   }
-                  type={item.media_type === "movie" ? "Movie" : "TV"}
-                  cert={certMap[item.id] || "NR"}
-                  title={item.title || item.name}
-                />
+                  className="block h-full"
+                >
+                  <MediaCard
+                    img={item.backdrop_path}
+                    year={
+                      item.release_date || item.first_air_date
+                        ? new Date(
+                            item.release_date || item.first_air_date
+                          ).getFullYear()
+                        : ""
+                    }
+                    icon={
+                      item.media_type === "movie" ? <MovieIcon /> : <TVIcon />
+                    }
+                    type={item.media_type === "movie" ? "Movie" : "TV"}
+                    cert={certMap[item.id] || "NR"}
+                    title={item.title || item.name}
+                  />
+                </Link>
               </CarouselItem>
             ))}
           </CarouselContent>

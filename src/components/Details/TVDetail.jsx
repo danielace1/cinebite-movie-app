@@ -1,23 +1,24 @@
 import PropTypes from "prop-types";
 import { Play, Plus } from "lucide-react";
 
-const Detail = ({ movie, playTrailer }) => {
-  if (!movie) return null;
+const TVDetail = ({ tv, playTrailer }) => {
+  if (!tv) return null;
 
-  const { details, watchProviders, cert, percentage, runtimeText, trailer } =
-    movie;
+  const { details, watchProviders, cert, percentage, trailer } = tv;
 
-  // console.log("Movie", movie);
-
-  const year = details.release_date
-    ? new Date(details.release_date).getFullYear()
-    : details.first_air_date
+  const title = details.name;
+  const year = details.first_air_date
     ? new Date(details.first_air_date).getFullYear()
     : null;
 
   const genres = details.genres?.map((g) => g.name).join(" • ") || "";
   const rating = typeof percentage === "number" ? percentage : 0;
   const isNR = !percentage && percentage !== 0;
+
+  const runtime =
+    details.episode_run_time?.length > 0
+      ? `${details.episode_run_time[0]}m`
+      : null;
 
   const radius = 18;
   const circumference = 2 * Math.PI * radius;
@@ -35,7 +36,7 @@ const Detail = ({ movie, playTrailer }) => {
           <img
             src={posterURL}
             onError={(e) => (e.target.src = "/no-poster.jpg")}
-            alt={details.title}
+            alt={title}
             className="w-full h-full object-cover"
           />
 
@@ -72,7 +73,7 @@ const Detail = ({ movie, playTrailer }) => {
       <div className="flex-1 text-white flex flex-col justify-center">
         <div>
           <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)]">
-            {details.title}
+            {title}
             {year && (
               <span className="ml-2 text-xl font-semibold text-gray-200/90">
                 ({year})
@@ -85,20 +86,7 @@ const Detail = ({ movie, playTrailer }) => {
               {cert || "NR"}
             </span>
 
-            {details.release_date && (
-              <>
-                <span>
-                  {new Date(details.release_date).toLocaleDateString("en-IN", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </span>
-              </>
-            )}
-
-            {runtimeText && <span>• {runtimeText}</span>}
-
+            {runtime && <span>• {runtime}</span>}
             {genres && <span className="hidden sm:inline">• {genres}</span>}
           </div>
         </div>
@@ -106,11 +94,7 @@ const Detail = ({ movie, playTrailer }) => {
         <div className="mt-6 flex flex-wrap items-center gap-8">
           {/* Score */}
           <div className="flex items-center gap-4">
-            <div
-              className="relative size-[72px] bg-black/50 rounded-full 
-                 p-1 shadow-lg shadow-black/60 border border-white/10
-                 transition-all duration-300 hover:scale-110 hover:shadow-2xl"
-            >
+            <div className="relative size-[72px] bg-black/50 rounded-full p-1 shadow-lg shadow-black/60 border border-white/10 transition-all duration-300 hover:scale-110 hover:shadow-2xl">
               <svg className="size-full -rotate-90" viewBox="0 0 44 44">
                 <circle
                   cx="22"
@@ -120,7 +104,6 @@ const Detail = ({ movie, playTrailer }) => {
                   className="stroke-gray-700"
                   strokeWidth="2"
                 />
-
                 <circle
                   cx="22"
                   cy="22"
@@ -164,23 +147,17 @@ const Detail = ({ movie, playTrailer }) => {
 
           {/* Buttons */}
           <div className="flex items-center gap-3 sm:gap-4">
-            {trailer && (
+            {trailer?.key && (
               <button
                 onClick={() => playTrailer(trailer.key)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white 
-                   text-black font-semibold text-sm shadow-lg hover:bg-gray-100 
-                   transition-all duration-300 hover:scale-105"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-black font-semibold text-sm shadow-lg hover:bg-gray-100 transition-all duration-300 hover:scale-105"
               >
                 <Play className="w-4 h-4" />
                 Play Trailer
               </button>
             )}
 
-            <button
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl 
-                 bg-white/20 border border-white/30 text-sm font-medium 
-                 hover:bg-white/30 transition-all duration-300 hover:scale-105"
-            >
+            <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 border border-white/30 text-sm font-medium hover:bg-white/30 transition-all duration-300 hover:scale-105">
               <Plus className="w-4 h-4" />
               Watchlist
             </button>
@@ -207,9 +184,9 @@ const Detail = ({ movie, playTrailer }) => {
   );
 };
 
-Detail.propTypes = {
-  movie: PropTypes.object,
+TVDetail.propTypes = {
+  tv: PropTypes.object,
   playTrailer: PropTypes.func,
 };
 
-export default Detail;
+export default TVDetail;

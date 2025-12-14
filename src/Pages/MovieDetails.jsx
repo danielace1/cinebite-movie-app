@@ -5,7 +5,7 @@ import "react-modal-video/css/modal-video.css";
 
 import { getMovieDetails } from "@/api/tmdbService";
 
-import Detail from "@/components/Details/Detail";
+import MovieDetail from "@/components/Details/MovieDetail";
 import CastandStatus from "@/components/Details/CastandStatus";
 import Reviews from "@/components/Details/Reviews";
 import Media from "@/components/Details/Media";
@@ -58,15 +58,13 @@ const MovieDetails = () => {
     recommendations,
   } = movie;
 
-  console.log("Videos", videos);
-
   const backdropURL = details.backdrop_path
     ? `https://image.tmdb.org/t/p/w1280${details.backdrop_path}`
     : "/no-img.png";
 
   return (
     <div className="mt-10 px-4 sm:px-6 lg:px-10 w-full max-w-[1440px] mx-auto overflow-x-hidden pb-1">
-      {/* Hero Section*/}
+      {/* Hero Section */}
       <div
         className="relative rounded-2xl overflow-hidden shadow-xl"
         style={{
@@ -80,10 +78,10 @@ const MovieDetails = () => {
           style={{ backgroundImage: movie.overlay }}
         />
 
-        <Detail movie={movie} playTrailer={openModal} />
+        <MovieDetail movie={movie} playTrailer={openModal} />
       </div>
 
-      {/* Cast and Status */}
+      {/* Cast & Status */}
       <CastandStatus details={details} credits={credits} />
 
       {/* Reviews */}

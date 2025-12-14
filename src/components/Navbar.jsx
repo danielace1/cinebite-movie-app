@@ -15,7 +15,7 @@ const Navbar = () => {
         className="flex flex-col items-center max-sm:hidden"
         title="Cinebite"
       >
-        <Link to="/user/dashboard">
+        <Link to="/user/home">
           <Clapperboard
             size={34}
             className="text-primary-col4 hover:text-red-500 transition duration-300"
