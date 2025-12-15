@@ -1,10 +1,58 @@
 import PropTypes from "prop-types";
-import { useState } from "react";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useWatchlistStore } from "@/store/useWatchlistStore";
+import toast from "react-hot-toast";
 import { Bookmark, BookmarkCheck } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 import noImg from "../../public/no-img.png";
 
-const MediaCard = ({ img, year, icon, type, cert, title }) => {
-  const [wishlisted, setWishlisted] = useState(false);
+const MediaCard = ({ img, year, icon, type, cert, title, mediaId }) => {
+  const { user } = useAuthStore();
+  const { addItem, removeItem, keys } = useWatchlistStore();
+
+  const mediaType = type.toLowerCase();
+  const key = `${mediaType}:${mediaId}`;
+  const wishlisted = keys.has(key);
+
+  const toggleWatchlist = async (e) => {
+    e.preventDefault();
+
+    if (!user) {
+      toast.error("Please log in to manage your watchlist.");
+      return;
+    }
+
+    try {
+      if (wishlisted) {
+        removeItem(null, mediaType, mediaId);
+
+        await supabase
+          .from("watchlist")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("media_id", mediaId)
+          .eq("media_type", mediaType);
+
+        toast.success(`${title} removed from your watchlist.`);
+      } else {
+        const payload = {
+          user_id: user.id,
+          media_id: mediaId,
+          media_type: mediaType,
+          title,
+          poster_path: img,
+        };
+
+        addItem(payload);
+
+        await supabase.from("watchlist").insert(payload);
+
+        toast.success(`${title} added to your watchlist.`);
+      }
+    } catch (error) {
+      toast.error("An error occurred. Please try again.");
+    }
+  };
 
   return (
     <div className="relative group cursor-pointer">
@@ -19,7 +67,7 @@ const MediaCard = ({ img, year, icon, type, cert, title }) => {
       <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/80 to-transparent rounded-b-lg"></div>
 
       <button
-        onClick={() => setWishlisted(!wishlisted)}
+        onClick={toggleWatchlist}
         className="absolute top-2 right-2 bg-black/50 p-2 rounded-full text-white hover:bg-primary transition"
       >
         {wishlisted ? <BookmarkCheck size={20} /> : <Bookmark size={20} />}
@@ -50,6 +98,7 @@ MediaCard.propTypes = {
   type: PropTypes.string,
   cert: PropTypes.string,
   title: PropTypes.string,
+  mediaId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 };
 
 export default MediaCard;

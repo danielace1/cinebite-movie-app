@@ -1,8 +1,18 @@
+import { useEffect } from "react";
+import { Outlet } from "react-router-dom";
+import { useAuthStore } from "@/store/useAuthStore";
 import Navbar from "@/components/Navbar";
 import Header from "@/components/Header";
-import { Outlet } from "react-router-dom";
+import { useWatchlistStore } from "@/store/useWatchlistStore";
 
 const UserLayout = () => {
+  const { user } = useAuthStore();
+  const { fetchWatchlist } = useWatchlistStore();
+
+  useEffect(() => {
+    if (user) fetchWatchlist(user.id);
+  }, [user, fetchWatchlist]);
+
   return (
     <div className="bg-primary-col2 min-h-screen">
       <div className="2xl:container flex">

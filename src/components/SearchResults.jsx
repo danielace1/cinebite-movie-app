@@ -60,6 +60,7 @@ const SearchResults = ({ results }) => {
             return (
               <MediaCard
                 key={item.id}
+                mediaId={item.id}
                 img={item.backdrop_path}
                 year={year}
                 icon={item.media_type === "movie" ? <MovieIcon /> : <TVIcon />}

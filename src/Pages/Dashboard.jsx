@@ -135,12 +135,13 @@ const CategoryRow = ({ title, fetchFn }) => {
                 <Link
                   to={
                     item.media_type === "movie"
-                      ? `/user/movies/${item.id}/details`
-                      : `/user/TVshows/${item.id}/details`
+                      ? `/movies/${item.id}/details`
+                      : `/TVshows/${item.id}/details`
                   }
                   className="block h-full"
                 >
                   <MediaCard
+                    mediaId={item.id}
                     img={item.backdrop_path}
                     year={
                       item.release_date || item.first_air_date

@@ -137,8 +137,9 @@ const TVRow = ({ title, fetchFn }) => {
                   key={item.id}
                   className="basis-1/2 sm:basis-1/3 lg:basis-1/5 px-2"
                 >
-                  <Link to={`/user/TVshows/${item.id}/details`}>
+                  <Link to={`/TVshows/${item.id}/details`}>
                     <MediaCard
+                      mediaId={item.id}
                       img={item.backdrop_path || item.poster_path}
                       year={year}
                       icon={<TVIcon />}
@@ -195,10 +196,11 @@ const TVSearchResults = ({ results }) => {
               return (
                 <Link
                   key={item.id}
-                  to={`/user/TVshows/${item.id}/details`}
+                  to={`/TVshows/${item.id}/details`}
                   className="block"
                 >
                   <MediaCard
+                    mediaId={item.id}
                     img={item.backdrop_path || item.poster_path}
                     year={year}
                     icon={<TVIcon />}

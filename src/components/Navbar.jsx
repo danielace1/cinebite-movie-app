@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Home, Film, Tv, Bookmark, Clapperboard, User } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { useAuthStore } from "@/store/useAuthStore";
+import toast from "react-hot-toast";
 
 const Navbar = () => {
-  const [user, setUser] = useState();
+  const { user, logout } = useAuthStore();
   const navigate = useNavigate();
 
   const navItems = [
@@ -14,23 +14,12 @@ const Navbar = () => {
     { to: "/watchlist", icon: <Bookmark size={26} />, label: "Watchlist" },
   ];
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
   const handleProfileClick = () => {
     if (!user) navigate("/login");
-    else navigate("/profile");
+    else {
+      navigate("/");
+      toast.success("Logged out successfully.");
+    }
   };
 
   const avatarUrl = user
@@ -91,6 +80,7 @@ const Navbar = () => {
               src={avatarUrl}
               alt="profile"
               className="w-10 h-10 rounded-full border border-white/20 shadow-md hover:scale-105 transition"
+              onClick={logout}
             />
           ) : (
             <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-gray-300 hover:bg-white/10 transition">

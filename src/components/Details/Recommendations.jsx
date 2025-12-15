@@ -58,11 +58,12 @@ const Recommendations = ({ recommendations = [] }) => {
                 <Link
                   to={
                     isMovie
-                      ? `/user/movies/${item.id}/details`
-                      : `/user/TVshows/${item.id}/details`
+                      ? `/movies/${item.id}/details`
+                      : `/TVshows/${item.id}/details`
                   }
                 >
                   <MediaCard
+                    mediaId={item.id}
                     img={item.backdrop_path || item.poster_path}
                     year={year}
                     title={

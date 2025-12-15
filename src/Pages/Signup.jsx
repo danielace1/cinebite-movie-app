@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowRight, Eye, EyeOff, Popcorn } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const { signup } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -24,14 +26,7 @@ const Signup = () => {
 
     try {
       setLoading(true);
-
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
+      await signup(email, password);
       setSuccess(true);
     } catch (error) {
       setError(error.message);
@@ -153,12 +148,14 @@ const Signup = () => {
           </form>
         )}
 
-        <p className="mt-6 text-center text-sm text-gray-400">
-          Already have an account?{" "}
-          <Link to="/login" className="text-gray-300 hover:underline">
-            Login
-          </Link>
-        </p>
+        {!success && (
+          <p className="mt-6 text-center text-sm text-gray-400">
+            Already have an account?{" "}
+            <Link to="/login" className="text-gray-300 hover:underline">
+              Login
+            </Link>
+          </p>
+        )}
       </div>
     </div>
   );

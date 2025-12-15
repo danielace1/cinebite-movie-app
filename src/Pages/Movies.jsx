@@ -136,8 +136,9 @@ const MoviesRow = ({ title, fetchFn }) => {
                   key={item.id}
                   className="basis-1/2 sm:basis-1/3 lg:basis-1/5 px-2"
                 >
-                  <Link to={`/user/movies/${item.id}/details`}>
+                  <Link to={`/movies/${item.id}/details`}>
                     <MediaCard
+                      mediaId={item.id}
                       img={item.backdrop_path || item.poster_path}
                       year={year}
                       icon={<MovieIcon />}
@@ -194,10 +195,11 @@ const MoviesSearchResults = ({ results }) => {
               return (
                 <Link
                   key={item.id}
-                  to={`/user/movies/${item.id}/details`}
+                  to={`/movies/${item.id}/details`}
                   className="block"
                 >
                   <MediaCard
+                    mediaId={item.id}
                     img={item.backdrop_path || item.poster_path}
                     year={year}
                     icon={<MovieIcon />}

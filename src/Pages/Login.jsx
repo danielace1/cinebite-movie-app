@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/store/useAuthStore";
 import { Mail, Lock, ArrowRight, EyeOff, Eye, Popcorn } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const { login } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -14,25 +16,17 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
     setError("");
 
     try {
       setLoading(true);
-
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
+      await login(email, password);
       navigate("/");
     } catch (err) {
       if (err.message.includes("Email not confirmed")) {
         setError("Please verify your email before logging in.");
       } else {
-        setError(err.message);
+        setError(err.message || "An error occurred. Please try again.");
       }
     } finally {
       setLoading(false);

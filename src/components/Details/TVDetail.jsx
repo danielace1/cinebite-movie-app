@@ -1,10 +1,24 @@
 import PropTypes from "prop-types";
 import { Play, Plus } from "lucide-react";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useWatchlistStore } from "@/store/useWatchlistStore";
+import { supabase } from "@/lib/supabase";
+import toast from "react-hot-toast";
 
 const TVDetail = ({ tv, playTrailer }) => {
+  const { user } = useAuthStore();
+  const { keys, addItem, removeItem } = useWatchlistStore();
+
   if (!tv) return null;
 
   const { details, watchProviders, cert, percentage, trailer } = tv;
+
+  const mediaType = "tv";
+  const mediaId = details.id;
+  const posterPath = details.poster_path;
+
+  const key = `${mediaType}:${mediaId}`;
+  const wishlisted = keys.has(key);
 
   const title = details.name;
   const year = details.first_air_date
@@ -23,6 +37,51 @@ const TVDetail = ({ tv, playTrailer }) => {
   const radius = 18;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (Math.min(rating, 100) / 100) * circumference;
+
+  const toggleWatchlist = async (e) => {
+    e.preventDefault();
+
+    if (!user) {
+      toast.error("Please log in to manage your watchlist.");
+      return;
+    }
+
+    try {
+      if (wishlisted) {
+        removeItem(tv.watchlistId ?? null, mediaType, mediaId);
+
+        await supabase
+          .from("watchlist")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("media_id", mediaId)
+          .eq("media_type", mediaType);
+
+        toast.success("Removed from your watchlist");
+      } else {
+        const payload = {
+          user_id: user.id,
+          media_id: mediaId,
+          media_type: mediaType,
+          title,
+          poster_path: posterPath,
+        };
+
+        const { data, error } = await supabase
+          .from("watchlist")
+          .insert(payload)
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        addItem(data);
+        toast.success("Added to your watchlist");
+      }
+    } catch (err) {
+      toast.error("Something went wrong. Try again.");
+    }
+  };
 
   const posterURL = details.poster_path
     ? `https://image.tmdb.org/t/p/w500${details.poster_path}`
@@ -157,9 +216,18 @@ const TVDetail = ({ tv, playTrailer }) => {
               </button>
             )}
 
-            <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 border border-white/30 text-sm font-medium hover:bg-white/30 transition-all duration-300 hover:scale-105">
+            <button
+              onClick={toggleWatchlist}
+              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 hover:scale-105
+    ${
+      wishlisted
+        ? "bg-emerald-500/90 text-white hover:bg-emerald-500"
+        : "bg-white/20 border border-white/30 text-white hover:bg-white/30"
+    }
+  `}
+            >
               <Plus className="w-4 h-4" />
-              Watchlist
+              {wishlisted ? "In Watchlist" : "Add to Watchlist"}
             </button>
           </div>
         </div>

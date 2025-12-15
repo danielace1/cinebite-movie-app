@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Play, Info, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { getCertification } from "@/api/tmdbService";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useWatchlistStore } from "@/store/useWatchlistStore";
+import { supabase } from "@/lib/supabase";
+import toast from "react-hot-toast";
 
 const HeroCarousel = ({ movies }) => {
   const [index, setIndex] = useState(0);
@@ -55,6 +59,8 @@ export default HeroCarousel;
 
 // Fade Slide Component
 const FadeSlide = ({ movie, isActive }) => {
+  const { user } = useAuthStore();
+  const { keys, addItem, removeItem } = useWatchlistStore();
   const [cert, setCert] = useState("");
 
   useEffect(() => {
@@ -66,6 +72,13 @@ const FadeSlide = ({ movie, isActive }) => {
 
   // Detect Movie or TV
   const isTV = movie.media_type === "tv";
+
+  const mediaType = isTV ? "tv" : "movie";
+  const mediaId = movie.id;
+  const posterPath = movie.poster_path || movie.backdrop_path;
+
+  const key = `${mediaType}:${mediaId}`;
+  const wishlisted = keys.has(key);
 
   const img = movie.backdrop_path || movie.poster_path;
 
@@ -81,10 +94,53 @@ const FadeSlide = ({ movie, isActive }) => {
   const overview = movie.overview;
 
   const detailsUrl = isTV
-    ? `/user/TVshows/${movie.id}/details`
-    : `/user/movies/${movie.id}/details`;
+    ? `/TVshows/${movie.id}/details`
+    : `/movies/${movie.id}/details`;
 
   const typeLabel = isTV ? "TV Series" : "Movie";
+
+  const toggleWatchlist = async () => {
+    if (!user) {
+      toast.error("Please log in to manage your watchlist.");
+      return;
+    }
+
+    try {
+      if (wishlisted) {
+        removeItem(null, mediaType, mediaId);
+
+        await supabase
+          .from("watchlist")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("media_id", mediaId)
+          .eq("media_type", mediaType);
+
+        toast.success("Removed from watchlist");
+      } else {
+        const payload = {
+          user_id: user.id,
+          media_id: mediaId,
+          media_type: mediaType,
+          title,
+          poster_path: posterPath,
+        };
+
+        const { data, error } = await supabase
+          .from("watchlist")
+          .insert(payload)
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        addItem(data);
+        toast.success("Added to watchlist");
+      }
+    } catch {
+      toast.error("Something went wrong");
+    }
+  };
 
   return (
     <div
@@ -128,10 +184,17 @@ const FadeSlide = ({ movie, isActive }) => {
           </Link>
 
           <button
-            className="px-5 py-2 bg-white/20 border border-white/30 text-white rounded-xl flex items-center gap-2 backdrop-blur-md 
-            hover:bg-white/30 transition"
+            onClick={toggleWatchlist}
+            className={`px-5 py-2 rounded-xl flex items-center gap-2 font-semibold transition
+              ${
+                wishlisted
+                  ? "bg-emerald-500 text-white hover:bg-emerald-600"
+                  : "bg-white/20 border border-white/30 text-white hover:bg-white/30"
+              }
+            `}
           >
-            <Plus size={18} /> Watchlist
+            <Plus size={18} />
+            {wishlisted ? "In Watchlist" : "Watchlist"}
           </button>
 
           <button className="hidden sm:flex px-5 py-2 bg-white/10 border border-white/20 text-white rounded-xl items-center gap-2 backdrop-blur-md hover:bg-white/20 transition">
