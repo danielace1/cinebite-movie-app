@@ -1,29 +1,18 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Popcorn, User } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import toast from "react-hot-toast";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const Header = () => {
-  const [user, setUser] = useState();
+  const { user, logout } = useAuthStore();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   const handleProfileClick = () => {
     if (!user) navigate("/login");
-    else navigate("/profile");
+    else {
+      navigate("/");
+      toast.success("Logged out successfully.");
+    }
   };
 
   const avatarUrl = user
@@ -52,6 +41,7 @@ const Header = () => {
               src={avatarUrl}
               alt="profile"
               className="w-10 h-10 rounded-full border border-white/20 shadow-md hover:scale-105 transition"
+              onClick={logout}
             />
           ) : (
             <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-gray-300 hover:bg-white/10 transition">
