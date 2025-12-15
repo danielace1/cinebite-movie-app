@@ -1,0 +1,23 @@
+{
+  "name": "CineBite",
+  "short_name": "CineBite",
+  "start_url": "/",
+  "description": "Discover movies and TV shows with CineBite - your ultimate entertainment guide.",
+  "icons": [
+    {
+      "src": "/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "theme_color": "#161D2F",
+  "background_color": "#161D2F",
+  "display": "standalone"
+}
