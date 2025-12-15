@@ -61,6 +61,8 @@ const TVShowDetails = () => {
     recommendations,
   } = tv;
 
+  console.log("details", details);
+
   const backdropURL = details.backdrop_path
     ? `https://image.tmdb.org/t/p/w1280${details.backdrop_path}`
     : "/no-img.png";

@@ -9,7 +9,7 @@ import Movies from "./Pages/Movies.jsx";
 import TVShows from "./Pages/TVShows.jsx";
 import Watchlist from "./Pages/Watchlist.jsx";
 import MovieDetails from "./Pages/MovieDetails.jsx";
-import TVShowDetails from "./Pages/TVshowDetails.jsx";
+import TVShowDetails from "./Pages/TVShowDetails.jsx";
 import NotFound from "./Pages/NotFound.jsx";
 import UserLayout from "./Layout/UserLayout.jsx";
 
@@ -17,11 +17,11 @@ const App = () => {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
-        <Route path="/user" element={<UserLayout />}>
-          <Route path="home" element={<Dashboard />} />
+        <Route path="/" element={<UserLayout />}>
+          <Route path="" element={<Dashboard />} />
           <Route path="movies" element={<Movies />} />
           <Route path="movies/:id/details" element={<MovieDetails />} />
           <Route path="tvshows" element={<TVShows />} />

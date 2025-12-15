@@ -9,7 +9,7 @@ const Reviews = ({ reviews, details }) => {
         <p className="text-gray-300">
           We don&apos;t have any reviews for{" "}
           <span className="font-semibold text-white">
-            {details?.title || details?.original_title}
+            {details?.title || details?.original_title || details?.name}
           </span>
           .
         </p>
