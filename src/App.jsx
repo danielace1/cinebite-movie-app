@@ -3,15 +3,15 @@ import { Route, Routes } from "react-router-dom";
 
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/useAuthStore.js";
-import Login from "./Pages/Login.jsx";
-import Signup from "./Pages/Signup.jsx";
-import Dashboard from "./Pages/Dashboard.jsx";
-import Movies from "./Pages/Movies.jsx";
-import TVShows from "./Pages/TVShows.jsx";
-import Watchlist from "./Pages/Watchlist.jsx";
-import MovieDetails from "./Pages/MovieDetails.jsx";
-import TVShowDetails from "./Pages/TVShowDetails.jsx";
-import NotFound from "./Pages/NotFound.jsx";
+import Login from "./pages/Login.jsx";
+import Signup from "./pages/Signup.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import Movies from "./pages/Movies.jsx";
+import TVShows from "./pages/TVShows.jsx";
+import Watchlist from "./pages/Watchlist.jsx";
+import MovieDetails from "./pages/MovieDetails.jsx";
+import TVShowDetails from "./pages/TVShowDetails.jsx";
+import NotFound from "./pages/NotFound.jsx";
 import UserLayout from "./Layout/UserLayout.jsx";
 
 const App = () => {
