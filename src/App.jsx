@@ -12,7 +12,7 @@ import Watchlist from "./pages/Watchlist.jsx";
 import MovieDetails from "./pages/MovieDetails.jsx";
 import TVShowDetails from "./pages/TVShowDetails.jsx";
 import NotFound from "./pages/NotFound.jsx";
-import UserLayout from "./Layout/UserLayout.jsx";
+import UserLayout from "./layout/UserLayout.jsx";
 
 const App = () => {
   const { initAuth } = useAuthStore();
