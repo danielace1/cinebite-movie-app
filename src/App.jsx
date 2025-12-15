@@ -13,6 +13,8 @@ import MovieDetails from "./pages/MovieDetails.jsx";
 import TVShowDetails from "./pages/TVShowDetails.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import UserLayout from "./layout/UserLayout.jsx";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
 
 const App = () => {
   const { initAuth } = useAuthStore();
@@ -35,6 +37,9 @@ const App = () => {
           <Route path="tvshows/:id/details" element={<TVShowDetails />} />
           <Route path="watchlist" element={<Watchlist />} />
         </Route>
+
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

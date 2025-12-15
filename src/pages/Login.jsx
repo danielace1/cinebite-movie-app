@@ -101,12 +101,12 @@ const Login = () => {
           </div>
 
           <div className="flex justify-end">
-            <button
-              type="button"
+            <Link
+              to="/forgot-password"
               className="text-sm text-gray-400 hover:underline transition"
             >
               Forgot password?
-            </button>
+            </Link>
           </div>
 
           {error && (

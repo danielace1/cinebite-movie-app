@@ -15,6 +15,7 @@ CineBite is a modern, fast, and responsive web application to explore trending *
 - 🔐 Authentication with **Supabase Auth**
   - Email & Password
   - Email verification
+  - Forgot password
 - 🗂 Watchlist persisted per user
 - 🎞 Trailer playback
 - 🌙 Dark cinematic UI
